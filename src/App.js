@@ -1,70 +1,98 @@
-import React, { useEffect, useState } from "react";
-import TradingViewWidget from "./TradingViewWidget";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import TradingViewWidget from "./components/TradingViewWidget";
+import CryptoCard from "./components/CryptoCard";
+import SearchBar from "./components/SearchBar";
 import { Switch } from "@headlessui/react";
+import axios from 'axios';
+
+const API_URL = "https://crypto-backend-pv99.onrender.com/crypto";
 
 function App() {
   const [cryptoData, setCryptoData] = useState(null);
-  const [selectedCoin, setSelectedCoin] = useState("bitcoin");
-  const [days, setDays] = useState(365);
+  const [selectedCoin, setSelectedCoin] = useState("BTC");
   const [darkMode, setDarkMode] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch("https://crypto-backend-pv99.onrender.com/crypto")
-      .then((response) => response.json())
-      .then((data) => {
-        setCryptoData(data);
+  const fetchData = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    axios.get(API_URL)
+      .then((response) => {
+        setCryptoData(response.data);
+        setLoading(false);
       })
-      .catch((error) => console.error("Hiba az API lekérdezésekor:", error));
+      .catch((error) => {
+        console.error("Hiba az API lekérdezésekor:", error);
+        setError("Hiba történt az adatok lekérésekor.");
+        setLoading(false);
+      });
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
-    <div className={darkMode ? "bg-gray-900 text-white min-h-screen" : "bg-white text-black min-h-screen"}>
-      <div className="flex flex-col items-center p-4">
-        <div className="flex justify-between items-center w-full max-w-4xl">
-          <h1 className="text-2xl font-bold">💰 Kripto Piac</h1>
-          <Switch
-            checked={darkMode}
-            onChange={setDarkMode}
-            className={`${darkMode ? "bg-blue-500" : "bg-gray-300"} relative inline-flex items-center h-6 rounded-full w-11`}
-          >
-            <span className="sr-only">Mód váltás</span>
-            <span className={`${darkMode ? "translate-x-6" : "translate-x-1"} inline-block w-4 h-4 transform bg-white rounded-full transition`} />
-          </Switch>
-        </div>
-        <div className="mt-4 w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-lg">
-          {cryptoData ? (
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-lg">🪙 <strong>BTC</strong></p>
-                <p>${cryptoData.btc_price.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-lg">🪙 <strong>ETH</strong></p>
-                <p>${cryptoData.eth_price.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-lg">🪙 <strong>DOGE</strong></p>
-                <p>${cryptoData.doge_price.toFixed(4)}</p>
-              </div>
+    <div className={darkMode ? "dark bg-gray-900 text-gray-100 min-h-screen transition-colors duration-300" : "bg-gray-50 text-gray-900 min-h-screen transition-colors duration-300"}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col items-center">
+          {/* Fejléc */}
+          <div className="w-full max-w-6xl flex justify-between items-center mb-12">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              CryptoVision
+            </h1>
+            <div className="flex items-center gap-4">
+              <span className="text-sm">{darkMode ? ' Sötét' : '☀️ Világos'}</span>
+              <Switch
+                checked={darkMode}
+                onChange={setDarkMode}
+                className={`${darkMode ? 'bg-blue-500' : 'bg-gray-300'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300`}
+              >
+                <span className="sr-only">Mód váltás</span>
+                <span className={`${darkMode ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300`} />
+              </Switch>
             </div>
-          ) : (
-            <p className="text-center text-gray-400">Adatok betöltése...</p>
-          )}
-        </div>
-        <div className="mt-4 w-full max-w-4xl">
-          <h2 className="text-xl font-bold text-center">{selectedCoin.toUpperCase()} árfolyam</h2>
-          <TradingViewWidget symbol={selectedCoin} darkMode={darkMode} />
-        </div>
-        <div className="mt-4 flex space-x-4">
-          <button className={`px-4 py-2 rounded ${selectedCoin === "bitcoin" ? "bg-blue-500" : "bg-gray-600"}`} onClick={() => setSelectedCoin("bitcoin")}>
-            Bitcoin
-          </button>
-          <button className={`px-4 py-2 rounded ${selectedCoin === "ethereum" ? "bg-blue-500" : "bg-gray-600"}`} onClick={() => setSelectedCoin("ethereum")}>
-            Ethereum
-          </button>
-          <button className={`px-4 py-2 rounded ${selectedCoin === "dogecoin" ? "bg-blue-500" : "bg-gray-600"}`} onClick={() => setSelectedCoin("dogecoin")}>
-            Dogecoin
-          </button>
+          </div>
+
+          <SearchBar />
+
+          {/* Árfolyam kártyák */}
+          <div className="w-full max-w-6xl mb-12">
+            <div className={`p-8 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-2xl transition-all duration-300 hover:shadow-xl`}>
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="mt-4 text-gray-400">Adatok betöltése...</p>
+                </div>
+              ) : error ? (
+                <p className="text-red-500 text-center">{error}</p>
+              ) : cryptoData ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <CryptoCard coin="BTC" data={cryptoData.btc_price} darkMode={darkMode} />
+                  <CryptoCard coin="ETH" data={cryptoData.eth_price} darkMode={darkMode} />
+                  <CryptoCard coin="DOGE" data={cryptoData.doge_price} darkMode={darkMode} />
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {/* TradingView Widget */}
+          <div className="w-full max-w-6xl mb-8">
+            <div className={`p-6 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl`}>
+              <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold mb-4 md:mb-0">
+                  {selectedCoin} árfolyam diagram
+                </h2>
+                <div className="flex gap-3">
+                  <button onClick={() => setSelectedCoin("BTC")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "BTC" ? "bg-blue-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Bitcoin</button>
+                  <button onClick={() => setSelectedCoin("ETH")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "ETH" ? "bg-purple-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Ethereum</button>
+                  <button onClick={() => setSelectedCoin("DOGE")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "DOGE" ? "bg-yellow-500 text-gray-900 shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Dogecoin</button>
+                </div>
+              </div>
+              <TradingViewWidget symbol={`BINANCE:${selectedCoin}USDT`} darkMode={darkMode} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
