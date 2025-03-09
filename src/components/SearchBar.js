@@ -58,7 +58,7 @@ const SearchBar = ({ onSelect }) => {
             <li
               key={coin.id}
               onClick={() => handleSelect(coin)}
-              className="p-2 hover:bg-gray-100 cursor-pointer"
+              className="p-2 hover:bg-gray-100 cursor-pointer text-black"
             >
               {coin.name} ({coin.symbol})
             </li>

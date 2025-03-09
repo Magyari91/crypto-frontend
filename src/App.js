@@ -9,7 +9,7 @@ const API_URL = "https://crypto-backend-pv99.onrender.com/crypto";
 
 function App() {
   const [cryptoData, setCryptoData] = useState(null);
-  const [selectedCoin, setSelectedCoin] = useState("bitcoin"); // CoinGecko id-t használunk
+  const [selectedCoin, setSelectedCoin] = useState("bitcoin");
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,7 +41,6 @@ function App() {
     <div className={darkMode ? "dark bg-gray-900 text-gray-100 min-h-screen transition-colors duration-300" : "bg-gray-50 text-gray-900 min-h-screen transition-colors duration-300"}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center">
-          {/* Fejléc */}
           <div className="w-full max-w-6xl flex justify-between items-center mb-12">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               CryptoVision
@@ -61,7 +60,6 @@ function App() {
 
           <SearchBar onSelect={handleCoinSelect} />
 
-          {/* Árfolyam kártyák */}
           <div className="w-full max-w-6xl mb-12">
             <div className={`p-8 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-2xl transition-all duration-300 hover:shadow-xl`}>
               {loading ? (
@@ -81,7 +79,6 @@ function App() {
             </div>
           </div>
 
-          {/* TradingView Widget */}
           <div className="w-full max-w-6xl mb-8">
             <div className={`p-6 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl`}>
               <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -94,7 +91,7 @@ function App() {
                   <button onClick={() => setSelectedCoin("dogecoin")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "dogecoin" ? "bg-yellow-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Dogecoin</button>
                 </div>
               </div>
-              <TradingViewWidget symbol={`${selectedCoin.toUpperCase()}USDT`} />
+              <TradingViewWidget symbol={`${selectedCoin.toUpperCase()}USDT`} darkMode={darkMode} />
             </div>
           </div>
         </div>
