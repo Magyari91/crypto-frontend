@@ -4,6 +4,9 @@ import CryptoCard from "./components/CryptoCard";
 import SearchBar from "./components/SearchBar";
 import { Switch } from "@headlessui/react";
 import axios from 'axios';
+import MarketOverview from './components/MarketOverview';
+import TopMovers from './components/TopMovers';
+import CoinList from './components/CoinList';
 
 const API_URL = "https://crypto-backend-pv99.onrender.com/crypto";
 
@@ -55,6 +58,18 @@ function App() {
                 <span className="sr-only">Mód váltás</span>
                 <span className={`${darkMode ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300`} />
               </Switch>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <MarketOverview darkMode={darkMode} />
+            </div>
+            <div className="md:col-span-1">
+              <TopMovers darkMode={darkMode} />
+            </div>
+            <div className="md:col-span-1">
+              <CoinList darkMode={darkMode} />
             </div>
           </div>
 
