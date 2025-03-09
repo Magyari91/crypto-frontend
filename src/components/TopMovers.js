@@ -26,22 +26,17 @@ function TopMovers({ darkMode }) {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 60000); // Adatok frissítése percenként
+    const intervalId = setInterval(fetchData, 60000);
 
-    return () => clearInterval(intervalId); // Interval törlése a komponens lebontásakor
+    return () => clearInterval(intervalId);
   },);
 
-  if (loading) {
-    return <p>Adatok betöltése...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
+  if (loading) return <p>Adatok betöltése...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className={`p-6 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl mb-8`}>
-      <h2 className="text-2xl font-bold mb-4">Top Mozgók (24h)</h2>
+    <div className={`p-4 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl mb-8`}>
+      <h2 className="text-xl font-bold mb-4 text-center md:text-left">Top Mozgók (24h)</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <h3 className="text-lg font-semibold mb-2">Top Emelkedők</h3>
@@ -50,7 +45,7 @@ function TopMovers({ darkMode }) {
               <li key={coin.id} className="flex items-center py-1">
                 <FaArrowUp className="text-green-500 mr-2" />
                 <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
-                <span>{coin.name} ({coin.price_change_percentage_24h.toFixed(2)}%)</span>
+                <span className="font-medium">{coin.symbol.toUpperCase()} ({coin.price_change_percentage_24h.toFixed(2)}%)</span>
               </li>
             ))}
           </ul>
@@ -62,7 +57,7 @@ function TopMovers({ darkMode }) {
               <li key={coin.id} className="flex items-center py-1">
                 <FaArrowDown className="text-red-500 mr-2" />
                 <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
-                <span>{coin.name} ({coin.price_change_percentage_24h.toFixed(2)}%)</span>
+                <span className="font-medium">{coin.symbol.toUpperCase()} ({coin.price_change_percentage_24h.toFixed(2)}%)</span>
               </li>
             ))}
           </ul>

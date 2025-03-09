@@ -5,7 +5,7 @@ import { Line } from 'react-chartjs-2';
 function MarketOverview({ darkMode }) {
   const [marketData, setMarketData] = useState(null);
   const [fearGreed, setFearGreed] = useState(null);
-  const [chartData, setChartData] = useState(null); // Új state a grafikon adataihoz
+  const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,15 +19,14 @@ function MarketOverview({ darkMode }) {
         setMarketData(marketResponse.data.data);
         setFearGreed(fearGreedResponse.data.data[0]);
 
-        // Grafikon adatainak létrehozása a `marketData` alapján
         const chartData = {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // Példa címkék
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
           datasets: [
             {
               label: 'Piaci kapitalizáció',
               data: [
-                marketData.total_market_cap.usd, // Piaci kapitalizáció adata
-                // ... további adatok a grafikonhoz
+                marketResponse.data.data.total_market_cap.usd / 1000000000000, // Milliárd USD-ben
+                // ... további adatok
               ],
               fill: false,
               backgroundColor: 'rgb(255, 99, 132)',
@@ -45,40 +44,31 @@ function MarketOverview({ darkMode }) {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 60000); // Adatok frissítése percenként
+    const intervalId = setInterval(fetchData, 60000);
 
-    return () => clearInterval(intervalId); // Interval törlése a komponens lebontásakor
-  },);
+    return () => clearInterval(intervalId);
+  }, []);
 
-  if (loading) {
-    return <p>Adatok betöltése...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
-
-  if (!marketData || !fearGreed || !chartData) { // Ellenőrizzük a chartData-t is
-    return null;
-  }
+  if (loading) return <p>Adatok betöltése...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!marketData || !fearGreed || !chartData) return null;
 
   return (
-    <div className={`grid grid-cols-2 gap-4 p-6 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl mb-8`}>
+    <div className={`grid grid-cols-2 gap-6 p-6 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl mb-8`}>
       <div className="flex flex-col items-center">
-        <img src="path/to/moon-icon.svg" alt="Moon Icon" className="moon-icon mb-4" />
-        <p className="text-lg font-semibold">{marketData.total_market_cap.usd.toLocaleString()}</p> {/* Piaci kapitalizáció */}
-        <p className="text-sm">{marketData.market_cap_change_percentage_24h_usd.toFixed(2)}%</p> {/* 24 órás változás */}
+        <img src="/moon-icon.svg" alt="Moon Icon" className="w-12 h-12 mb-2" />
+        <p className="text-lg font-semibold">${(marketData.total_market_cap.usd / 1000000000).toFixed(2)}B</p>
+        <p className="text-sm text-green-500">{marketData.market_cap_change_percentage_24h_usd.toFixed(2)}%</p>
       </div>
       <div className="flex flex-col items-center">
-        <div className="rounded-circle bg-blue-500 w-16 h-16 flex items-center justify-center mb-4">
-          <p className="text-white text-lg font-semibold">{fearGreed.value}</p> {/* Fear & Greed Index */}
+        <div className="rounded-full bg-blue-500 w-16 h-16 flex items-center justify-center mb-2">
+          <p className="text-white text-lg font-semibold">{fearGreed.value}</p>
         </div>
-        <div className="rounded-circle bg-green-500 w-16 h-16 flex items-center justify-center">
-          <p className="text-white text-lg font-semibold">{marketData.market_cap_percentage.eth.toFixed(2)}</p> {/* ETH dominancia */}
+        <div className="rounded-full bg-green-500 w-16 h-16 flex items-center justify-center">
+          <p className="text-white text-lg font-semibold">{marketData.market_cap_percentage.eth.toFixed(2)}%</p>
         </div>
       </div>
-      {/* ... további piaci adatok ... */}
-      <div className="col-span-2 mt-4"> {/* Hozzáadtunk egy margó-top-ot */}
+      <div className="col-span-2 mt-4">
         <Line data={chartData} />
       </div>
     </div>

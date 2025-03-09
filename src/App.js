@@ -31,7 +31,7 @@ function App() {
         setError("Hiba történt az adatok lekérésekor.");
         setLoading(false);
       });
-  },);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -51,7 +51,7 @@ function App() {
     >
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center">
-          <div className="w-full max-w-6xl flex justify-between items-center mb-12">
+          <div className="w-full max-w-6xl flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               CryptoVision
             </h1>
@@ -76,21 +76,21 @@ function App() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SearchBar onSelect={handleCoinSelect} />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl mt-6">
             <div className="md:col-span-2">
               <MarketOverview darkMode={darkMode} />
             </div>
             <div className="md:col-span-1">
               <TopMovers darkMode={darkMode} />
             </div>
-            <div className="md:col-span-1">
+            <div className="md:col-span-3">
               <CoinList darkMode={darkMode} />
             </div>
           </div>
 
-          <SearchBar onSelect={handleCoinSelect} />
-
-          <div className="w-full max-w-6xl mb-12">
+          <div className="w-full max-w-6xl mt-8">
             <div
               className={`p-8 rounded-2xl ${
                 darkMode ? "bg-gray-800" : "bg-white"
@@ -125,7 +125,7 @@ function App() {
             </div>
           </div>
 
-          <div className="w-full max-w-6xl mb-8">
+          <div className="w-full max-w-6xl mt-8 mb-8">
             <div
               className={`p-6 rounded-2xl ${
                 darkMode ? "bg-gray-800" : "bg-white"
