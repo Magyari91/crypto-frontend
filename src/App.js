@@ -91,4 +91,16 @@ function App() {
                 <div className="flex gap-3">
                   <button onClick={() => setSelectedCoin("bitcoin")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "bitcoin" ? "bg-blue-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Bitcoin</button>
                   <button onClick={() => setSelectedCoin("ethereum")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "ethereum" ? "bg-purple-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Ethereum</button>
-                  <button onClick={() => setSelectedCoin("dogecoin")} className={`px-6 py-2 rounded-full
+                  <button onClick={() => setSelectedCoin("dogecoin")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "dogecoin" ? "bg-yellow-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Dogecoin</button>
+                </div>
+              </div>
+              <TradingViewWidget symbol={`${selectedCoin.toUpperCase()}USDT`} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
