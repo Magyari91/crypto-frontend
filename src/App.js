@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import TradingViewWidget from "./components/TradingViewWidget";
-import CryptoCard from "./components/CryptoCard";
+import { CryptoCard } from './components/CryptoCard'; // Importáld a CryptoCard komponenst
 import SearchBar from "./components/SearchBar";
 import { Switch } from "@headlessui/react";
 import axios from 'axios';

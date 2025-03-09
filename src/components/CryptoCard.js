@@ -1,5 +1,5 @@
 // CryptoCard.js
-function CryptoCard({ coin, data, darkMode }) {
+export function CryptoCard({ coin, data, darkMode }) { // Exportáld a CryptoCard komponenst
   // ...
   return (
     <div className={`p-4 rounded-xl ${darkMode ? "bg-gray-700" : "bg-white"} shadow-md transition-all duration-300`}>
@@ -11,6 +11,8 @@ function CryptoCard({ coin, data, darkMode }) {
 }
 
 // App.js
+import { CryptoCard } from './components/CryptoCard'; // Importáld a CryptoCard komponenst
+
 function App() {
   // ...
   return (
@@ -21,7 +23,7 @@ function App() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent text-center md:text-left">
               CryptoVision
             </h1>
-            //...
+            {/*...*/}
           </div>
 
           <SearchBar onSelect={handleCoinSelect} />
@@ -38,7 +40,7 @@ function App() {
               ) : null}
             </div>
           </div>
-          //...
+          {/*...*/}
         </div>
       </div>
     </div>
