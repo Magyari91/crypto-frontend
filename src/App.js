@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import TradingViewWidget from "./components/TradingViewWidget";
 import CryptoCard from "./components/CryptoCard";
 import SearchBar from "./components/SearchBar";
@@ -9,7 +9,7 @@ const API_URL = "https://crypto-backend-pv99.onrender.com/crypto";
 
 function App() {
   const [cryptoData, setCryptoData] = useState(null);
-  const [selectedCoin, setSelectedCoin] = useState("BTC");
+  const [selectedCoin, setSelectedCoin] = useState("bitcoin"); // CoinGecko id-t használunk
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,6 +33,10 @@ function App() {
     fetchData();
   }, [fetchData]);
 
+  const handleCoinSelect = (coinId) => {
+    setSelectedCoin(coinId);
+  };
+
   return (
     <div className={darkMode ? "dark bg-gray-900 text-gray-100 min-h-screen transition-colors duration-300" : "bg-gray-50 text-gray-900 min-h-screen transition-colors duration-300"}>
       <div className="container mx-auto px-4 py-8">
@@ -55,7 +59,7 @@ function App() {
             </div>
           </div>
 
-          <SearchBar />
+          <SearchBar onSelect={handleCoinSelect} />
 
           {/* Árfolyam kártyák */}
           <div className="w-full max-w-6xl mb-12">
@@ -82,21 +86,9 @@ function App() {
             <div className={`p-6 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl`}>
               <div className="flex flex-col md:flex-row justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold mb-4 md:mb-0">
-                  {selectedCoin} árfolyam diagram
+                  {selectedCoin.toUpperCase()} árfolyam diagram
                 </h2>
                 <div className="flex gap-3">
-                  <button onClick={() => setSelectedCoin("BTC")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "BTC" ? "bg-blue-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Bitcoin</button>
-                  <button onClick={() => setSelectedCoin("ETH")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "ETH" ? "bg-purple-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Ethereum</button>
-                  <button onClick={() => setSelectedCoin("DOGE")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "DOGE" ? "bg-yellow-500 text-gray-900 shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Dogecoin</button>
-                </div>
-              </div>
-              <TradingViewWidget symbol={`BINANCE:${selectedCoin}USDT`} darkMode={darkMode} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default App;
+                  <button onClick={() => setSelectedCoin("bitcoin")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "bitcoin" ? "bg-blue-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Bitcoin</button>
+                  <button onClick={() => setSelectedCoin("ethereum")} className={`px-6 py-2 rounded-full transition-all duration-200 ${selectedCoin === "ethereum" ? "bg-purple-500 text-white shadow-lg" : darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"}`}>Ethereum</button>
+                  <button onClick={() => setSelectedCoin("dogecoin")} className={`px-6 py-2 rounded-full
