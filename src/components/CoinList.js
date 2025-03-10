@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Chart, Line, LinearScale } from 'chart.js'; // Importálás
+import { Chart, Line, LinearScale } from 'react-chartjs-2';
+import { Chart as ChartJS } from 'chart.js/auto';
 
-Chart.register(LinearScale); // Regisztrálás
+ChartJS.register(LinearScale);
 
 function CoinList({ darkMode }) {
     const [coinList, setCoinList] = useState([]);
