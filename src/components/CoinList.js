@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Chart, Line, LinearScale } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto';
+import { Chart, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, LinearScale } from 'chart.js'; // Javított import
 
 ChartJS.register(LinearScale);
 
