@@ -7,6 +7,8 @@ import axios from "axios";
 import MarketOverview from "./components/MarketOverview";
 import TopMovers from "./components/TopMovers";
 import CoinList from "./components/CoinList";
+import Navbar from "./components/Navbar";
+import CryptoNews from "./components/CryptoNews"; // Hírek importálása
 
 const API_URL = "https://crypto-backend-pv99.onrender.com/crypto";
 
@@ -49,33 +51,9 @@ function App() {
           : "bg-gray-50 text-gray-900 min-h-screen transition-colors duration-300"
       }
     >
+      <Navbar darkMode={darkMode} setDarkMode={setDarkMode} /> {/* ÚJ: Navbar */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center">
-          <div className="w-full max-w-6xl flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              CryptoVision
-            </h1>
-            <div className="flex items-center gap-4">
-              <span className="text-sm">
-                {darkMode ? " Sötét" : "☀️ Világos"}
-              </span>
-              <Switch
-                checked={darkMode}
-                onChange={setDarkMode}
-                className={`${
-                  darkMode ? "bg-blue-500" : "bg-gray-300"
-                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300`}
-              >
-                <span className="sr-only">Mód váltás</span>
-                <span
-                  className={`${
-                    darkMode ? "translate-x-6" : "translate-x-1"
-                  } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300`}
-                />
-              </Switch>
-            </div>
-          </div>
-
           <SearchBar onSelect={handleCoinSelect} />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl mt-6">
@@ -91,38 +69,7 @@ function App() {
           </div>
 
           <div className="w-full max-w-6xl mt-8">
-            <div
-              className={`p-8 rounded-2xl ${
-                darkMode ? "bg-gray-800" : "bg-white"
-              } shadow-2xl transition-all duration-300 hover:shadow-xl`}
-            >
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                  <p className="mt-4 text-gray-400">Adatok betöltése...</p>
-                </div>
-              ) : error ? (
-                <p className="text-red-500 text-center">{error}</p>
-              ) : cryptoData ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <CryptoCard
-                    coin="BTC"
-                    data={cryptoData.btc_price}
-                    darkMode={darkMode}
-                  />
-                  <CryptoCard
-                    coin="ETH"
-                    data={cryptoData.eth_price}
-                    darkMode={darkMode}
-                  />
-                  <CryptoCard
-                    coin="DOGE"
-                    data={cryptoData.doge_price}
-                    darkMode={darkMode}
-                  />
-                </div>
-              ) : null}
-            </div>
+            <CryptoNews darkMode={darkMode} /> {/* ÚJ: Hírek szekció */}
           </div>
 
           <div className="w-full max-w-6xl mt-8 mb-8">
