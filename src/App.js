@@ -4,7 +4,7 @@ import MarketOverview from "./components/MarketOverview";
 import TopMovers from "./components/TopMovers";
 import CoinList from "./components/CoinList";
 import NewsSection from "./components/NewsSection";
-import Heatmap from "./components/Heatmap"; // 🔥 Hőtérkép komponens importálása
+import Heatmap from "./components/Heatmap"; // 🔥 Hőtérkép importálása
 import { Switch } from "@headlessui/react";
 
 function App() {
@@ -15,11 +15,14 @@ function App() {
     <div className={darkMode ? "bg-gray-900 text-white min-h-screen" : "bg-white text-black min-h-screen"}>
       
       {/* 🔹 Felső Navigációs Sáv */}
-      <div className="p-4 flex justify-between items-center">
+      <div className="p-4 flex justify-between items-center bg-gray-800 shadow-lg">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          CryptoVision
+          CryptoVision 🚀
         </h1>
-        <input className="p-2 rounded-md text-black" placeholder="Keresés..." />
+        <input 
+          className="p-2 rounded-md text-black w-60 placeholder-gray-500"
+          placeholder="🔍 Keresés kriptovaluták között..." 
+        />
         <Switch
           checked={darkMode}
           onChange={setDarkMode}
@@ -30,52 +33,52 @@ function App() {
         </Switch>
       </div>
 
-      {/* 🔹 Piaci Áttekintés */}
+      {/* 🔹 Piaci Összegzés */}
       <MarketOverview darkMode={darkMode} />
 
-      {/* 🔹 Hőtérkép (Heatmap) – PIACI MOZGÁSOK */}
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-center mb-4">🌡️ Kripto Hőtérkép</h2>
-        <Heatmap darkMode={darkMode} />
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mx-6">
+        {/* 🔹 Hőtérkép (Heatmap) */}
+        <div className="p-4 bg-gray-800 rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold text-center mb-4">🌡️ Kripto Hőtérkép</h2>
+          <Heatmap darkMode={darkMode} />
+        </div>
 
-      {/* 🔹 Top Movers (Nyertesek és Vesztesek) */}
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-center mb-4">📈 Legnagyobb Mozgások (24h)</h2>
-        <TopMovers darkMode={darkMode} />
+        {/* 🔹 Top Movers (Nyertesek és Vesztesek) */}
+        <div className="p-4 bg-gray-800 rounded-lg shadow-lg md:col-span-2">
+          <h2 className="text-xl font-bold text-center mb-4">📈 Legnagyobb Mozgások (24h)</h2>
+          <TopMovers darkMode={darkMode} />
+        </div>
       </div>
 
       {/* 🔹 Coin Lista */}
-      <CoinList darkMode={darkMode} />
+      <div className="mx-6 mt-6">
+        <CoinList darkMode={darkMode} />
+      </div>
 
-      {/* 🔹 Hírek szekció */}
-      <NewsSection darkMode={darkMode} />
+      {/* 🔹 Kripto Hírek */}
+      <div className="mx-6 mt-6">
+        <NewsSection darkMode={darkMode} />
+      </div>
 
-      {/* 🔹 Technikai Elemzés Grafikon */}
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg">
+      {/* 🔹 Technikai Elemzés */}
+      <div className="mt-6 mx-6 p-6 bg-gray-800 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold text-center mb-4">📊 Technikai Elemzés</h2>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 mb-4">
           <button
             onClick={() => setSelectedCoin("BTC")}
-            className={`px-4 py-2 rounded-full ${
-              selectedCoin === "BTC" ? "bg-blue-500 text-white" : "bg-gray-600"
-            }`}
+            className={`px-4 py-2 rounded-full ${selectedCoin === "BTC" ? "bg-blue-500 text-white shadow-lg" : "bg-gray-600 hover:bg-gray-500"}`}
           >
             Bitcoin
           </button>
           <button
             onClick={() => setSelectedCoin("ETH")}
-            className={`px-4 py-2 rounded-full ${
-              selectedCoin === "ETH" ? "bg-purple-500 text-white" : "bg-gray-600"
-            }`}
+            className={`px-4 py-2 rounded-full ${selectedCoin === "ETH" ? "bg-purple-500 text-white shadow-lg" : "bg-gray-600 hover:bg-gray-500"}`}
           >
             Ethereum
           </button>
           <button
             onClick={() => setSelectedCoin("DOGE")}
-            className={`px-4 py-2 rounded-full ${
-              selectedCoin === "DOGE" ? "bg-yellow-500 text-white" : "bg-gray-600"
-            }`}
+            className={`px-4 py-2 rounded-full ${selectedCoin === "DOGE" ? "bg-yellow-500 text-white shadow-lg" : "bg-gray-600 hover:bg-gray-500"}`}
           >
             Dogecoin
           </button>
@@ -86,6 +89,11 @@ function App() {
           darkMode={darkMode}
         />
       </div>
+
+      {/* 🔹 Lábjegyzet */}
+      <footer className="mt-10 text-center text-gray-400">
+        <p>🚀 CryptoVision | Minden jog fenntartva © 2025</p>
+      </footer>
 
     </div>
   );
