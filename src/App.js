@@ -4,7 +4,7 @@ import MarketOverview from "./components/MarketOverview";
 import TopMovers from "./components/TopMovers";
 import CoinList from "./components/CoinList";
 import NewsSection from "./components/NewsSection";
-import Heatmap from "./components/Heatmap"; // 🔥 ÚJ: Hőtérkép komponens
+import Heatmap from "./components/Heatmap"; // 🔥 Hőtérkép komponens importálása
 import { Switch } from "@headlessui/react";
 
 function App() {
@@ -13,7 +13,8 @@ function App() {
 
   return (
     <div className={darkMode ? "bg-gray-900 text-white min-h-screen" : "bg-white text-black min-h-screen"}>
-      {/* 🔹 Felső Navigáció */}
+      
+      {/* 🔹 Felső Navigációs Sáv */}
       <div className="p-4 flex justify-between items-center">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
           CryptoVision
@@ -32,11 +33,19 @@ function App() {
       {/* 🔹 Piaci Áttekintés */}
       <MarketOverview darkMode={darkMode} />
 
-      {/* 🔹 Hőtérkép (Heatmap) */}
-      <Heatmap darkMode={darkMode} />
+      {/* 🔹 Hőtérkép (Heatmap) – PIACI MOZGÁSOK */}
+      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg">
+        <h2 className="text-xl font-bold text-center mb-4">🌡️ Kripto Hőtérkép</h2>
+        <Heatmap darkMode={darkMode} />
+      </div>
 
-      {/* 🔹 Top Movers és Coin Lista */}
-      <TopMovers darkMode={darkMode} />
+      {/* 🔹 Top Movers (Nyertesek és Vesztesek) */}
+      <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg">
+        <h2 className="text-xl font-bold text-center mb-4">📈 Legnagyobb Mozgások (24h)</h2>
+        <TopMovers darkMode={darkMode} />
+      </div>
+
+      {/* 🔹 Coin Lista */}
       <CoinList darkMode={darkMode} />
 
       {/* 🔹 Hírek szekció */}
@@ -44,7 +53,7 @@ function App() {
 
       {/* 🔹 Technikai Elemzés Grafikon */}
       <div className="mt-6 p-4 bg-gray-800 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold text-center mb-4">Technikai Elemzés</h2>
+        <h2 className="text-xl font-bold text-center mb-4">📊 Technikai Elemzés</h2>
         <div className="flex justify-center gap-4">
           <button
             onClick={() => setSelectedCoin("BTC")}
@@ -77,6 +86,7 @@ function App() {
           darkMode={darkMode}
         />
       </div>
+
     </div>
   );
 }

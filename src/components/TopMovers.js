@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
-const API_URL = "https://crypto-backend-pv99.onrender.com/crypto-data"; // 🔹 API Proxy használata
+const API_URL = "https://crypto-backend-pv99.onrender.com/crypto-data"; 
 
 function TopMovers({ darkMode }) {
   const [topGainers, setTopGainers] = useState([]);
@@ -17,16 +17,21 @@ function TopMovers({ darkMode }) {
       try {
         const response = await axios.get(API_URL);
 
-        // 🔹 **Ellenőrzés: Van-e adat?**
         if (!response.data || response.data.length === 0) {
           throw new Error("Nincs elérhető adat az API-ból.");
         }
 
-        // 🔹 **Piac 24 órás változás szerint sorbarendezése**
-        const sorted = response.data
-          .filter((coin) => coin.price_change_percentage_24h !== null) // 🔹 **Hibás adatok kiszűrése**
-          .sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h);
+        // 🔹 **Ellenőrizzük, hogy az adatok megfelelőek-e**
+        const validCoins = response.data.filter(
+          (coin) => coin.price_change_percentage_24h !== null && coin.price_change_percentage_24h !== undefined
+        );
 
+        if (validCoins.length === 0) {
+          throw new Error("Nincsenek érvényes adatok.");
+        }
+
+        // 🔹 **Sorba rendezés és szűrés**
+        const sorted = validCoins.sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h);
         setTopGainers(sorted.slice(0, 5));
         setTopLosers(sorted.slice(-5).reverse());
       } catch (err) {
@@ -38,10 +43,10 @@ function TopMovers({ darkMode }) {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 60000); // 🔹 **Frissítés 60 másodpercenként**
+    const intervalId = setInterval(fetchData, 60000);
 
     return () => clearInterval(intervalId);
-  }, []); // 🔹 **Megakadályozza a végtelen ciklust**
+  }, []);
 
   if (loading) return <p className="text-center text-gray-400">Adatok betöltése...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
@@ -55,14 +60,20 @@ function TopMovers({ darkMode }) {
         <div>
           <h3 className="text-lg font-semibold mb-2">🚀 Top Emelkedők</h3>
           <ul>
-            {topGainers.map((coin) => (
-              <li key={coin.id} className="flex items-center py-2 border-b border-gray-700 last:border-none">
-                <FaArrowUp className="text-green-500 mr-2" />
-                <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
-                <span className="font-medium">{coin.symbol.toUpperCase()} </span>
-                <span className="ml-auto font-bold text-green-400">+{coin.price_change_percentage_24h.toFixed(2)}%</span>
-              </li>
-            ))}
+            {topGainers.length > 0 ? (
+              topGainers.map((coin) => (
+                <li key={coin.id} className="flex items-center py-2 border-b border-gray-700 last:border-none">
+                  <FaArrowUp className="text-green-500 mr-2" />
+                  <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
+                  <span className="font-medium">{coin.symbol.toUpperCase()} </span>
+                  <span className="ml-auto font-bold text-green-400">
+                    {coin.price_change_percentage_24h ? `+${coin.price_change_percentage_24h.toFixed(2)}%` : "N/A"}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <p className="text-gray-400 text-sm">Nincs elérhető adat</p>
+            )}
           </ul>
         </div>
 
@@ -70,14 +81,20 @@ function TopMovers({ darkMode }) {
         <div>
           <h3 className="text-lg font-semibold mb-2">📉 Top Zuhanók</h3>
           <ul>
-            {topLosers.map((coin) => (
-              <li key={coin.id} className="flex items-center py-2 border-b border-gray-700 last:border-none">
-                <FaArrowDown className="text-red-500 mr-2" />
-                <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
-                <span className="font-medium">{coin.symbol.toUpperCase()} </span>
-                <span className="ml-auto font-bold text-red-400">{coin.price_change_percentage_24h.toFixed(2)}%</span>
-              </li>
-            ))}
+            {topLosers.length > 0 ? (
+              topLosers.map((coin) => (
+                <li key={coin.id} className="flex items-center py-2 border-b border-gray-700 last:border-none">
+                  <FaArrowDown className="text-red-500 mr-2" />
+                  <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
+                  <span className="font-medium">{coin.symbol.toUpperCase()} </span>
+                  <span className="ml-auto font-bold text-red-400">
+                    {coin.price_change_percentage_24h ? `${coin.price_change_percentage_24h.toFixed(2)}%` : "N/A"}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <p className="text-gray-400 text-sm">Nincs elérhető adat</p>
+            )}
           </ul>
         </div>
       </div>
