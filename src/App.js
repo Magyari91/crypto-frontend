@@ -12,6 +12,12 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState("BTC");
 
+  const coinMap = {
+    BTC: "bitcoin",
+    ETH: "ethereum",
+    DOGE: "dogecoin",
+  };
+
   return (
     <div className={darkMode ? "bg-gray-900 text-white min-h-screen" : "bg-white text-black min-h-screen"}>
       
@@ -76,8 +82,8 @@ function App() {
             />
           </div>
 
-          {/* Technikai indikátorok */}
-          <TechnicalIndicators coin={selectedCoin} darkMode={darkMode} />
+          {/* Technikai indikátorok – coinMap alapján */}
+          <TechnicalIndicators coin={coinMap[selectedCoin]} darkMode={darkMode} />
         </div>
       </div>
 
