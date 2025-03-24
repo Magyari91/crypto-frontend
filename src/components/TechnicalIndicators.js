@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+// Coin szimbólumok konvertálása CoinGecko formára
+const coinMap = {
+  BTC: "bitcoin",
+  ETH: "ethereum",
+  DOGE: "dogecoin",
+};
+
 function TechnicalIndicators({ coin, darkMode }) {
   const [indicators, setIndicators] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,8 +17,9 @@ function TechnicalIndicators({ coin, darkMode }) {
     const fetchIndicators = async () => {
       setLoading(true);
       try {
+        const coinName = coinMap[coin.toUpperCase()] || coin.toLowerCase();
         const response = await axios.get(
-          `https://crypto-backend-pv99.onrender.com/crypto-indicators?coin=${coin}`
+          `https://crypto-backend-pv99.onrender.com/crypto-indicators?coin=${coinName}`
         );
 
         if (!Array.isArray(response.data) || response.data.length === 0 || !response.data[0]) {
