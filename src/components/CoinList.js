@@ -8,10 +8,9 @@ import {
   LinearScale,
   CategoryScale,
   Tooltip,
-  Legend
+  Legend,
 } from "chart.js";
 
-// 📌 **Regisztráljuk a Chart.js szükséges elemeit**
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
 function CoinList({ darkMode }) {
@@ -25,7 +24,7 @@ function CoinList({ darkMode }) {
       setError(null);
       try {
         const response = await axios.get(
-          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=true"
+          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=8&page=1&sparkline=true"
         );
         setCoinList(response.data);
       } catch (err) {
@@ -46,65 +45,62 @@ function CoinList({ darkMode }) {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className={`p-4 rounded-2xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-xl mb-8`}>
+    <div className="mb-8">
       <h2 className="text-xl font-bold mb-4 text-center md:text-left">📈 Coin Lista</h2>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left bg-gray-700 text-white">
-            <th className="py-2 px-3">Coin</th>
-            <th className="py-2 px-3">Ár</th>
-            <th className="py-2 px-3">24h</th>
-            <th className="py-2 px-3">Market Cap</th>
-            <th className="py-2 px-3">Volume</th>
-            <th className="py-2 px-3">Graph</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coinList.map((coin) => (
-            <tr key={coin.id} className="border-b hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-              <td className="py-2 px-3 flex items-center">
-                <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2 rounded-full" />
-                <span className="font-semibold">{coin.symbol.toUpperCase()}</span>
-              </td>
-              <td className="py-2 px-3">${coin.current_price.toLocaleString()}</td>
-              <td className={`py-2 px-3 font-bold ${coin.price_change_percentage_24h > 0 ? "text-green-500" : "text-red-500"}`}>
-                {coin.price_change_percentage_24h.toFixed(2)}%
-              </td>
-              <td className="py-2 px-3">${coin.market_cap.toLocaleString()}</td>
-              <td className="py-2 px-3">${coin.total_volume.toLocaleString()}</td>
-              <td className="py-2 px-3">
-                {coin.sparkline_in_7d && coin.sparkline_in_7d.price.length > 0 && (
-                  <div className="h-12 w-24">
-                    <Line
-                      data={{
-                        labels: coin.sparkline_in_7d.price.map((_, index) => index),
-                        datasets: [
-                          {
-                            data: coin.sparkline_in_7d.price,
-                            borderColor: coin.price_change_percentage_24h > 0 ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            fill: false,
-                          },
-                        ],
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                          x: { type: "category", display: false },
-                          y: { display: false },
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {coinList.map((coin) => {
+          const isPositive = coin.price_change_percentage_24h >= 0;
+          return (
+            <div
+              key={coin.id}
+              className={`rounded-xl p-4 shadow-lg transition transform hover:scale-[1.02] ${
+                darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              }`}
+            >
+              <div className="flex items-center mb-2">
+                <img src={coin.image} alt={coin.name} className="w-6 h-6 mr-2" />
+                <h3 className="font-semibold text-lg">{coin.name} ({coin.symbol.toUpperCase()})</h3>
+              </div>
+              <p className="text-sm">
+                Ár: <span className="font-bold text-blue-400">${coin.current_price.toLocaleString()}</span>
+              </p>
+              <p className="text-sm">
+                24h változás:{" "}
+                <span className={`font-bold ${isPositive ? "text-green-400" : "text-red-400"}`}>
+                  {coin.price_change_percentage_24h.toFixed(2)}%
+                </span>
+              </p>
+              <div className="h-16 mt-2">
+                {coin.sparkline_in_7d?.price.length > 0 && (
+                  <Line
+                    data={{
+                      labels: coin.sparkline_in_7d.price.map((_, i) => i),
+                      datasets: [
+                        {
+                          data: coin.sparkline_in_7d.price,
+                          borderColor: isPositive ? "#22c55e" : "#ef4444",
+                          borderWidth: 2,
+                          pointRadius: 0,
+                          fill: false,
                         },
-                        plugins: { legend: { display: false } },
-                      }}
-                    />
-                  </div>
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: { display: false },
+                        y: { display: false },
+                      },
+                      plugins: { legend: { display: false } },
+                    }}
+                  />
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

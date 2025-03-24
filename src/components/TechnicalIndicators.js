@@ -23,16 +23,33 @@ function TechnicalIndicators({ coin, darkMode }) {
     fetchIndicators();
   }, [coin]);
 
-  if (loading) return <p>🔄 Indikátorok betöltése...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return <p className="text-center text-gray-400">🔄 Indikátorok betöltése...</p>;
+  if (error) return <p className="text-red-500 text-center">{error}</p>;
+
+  const labelClasses = "text-sm text-gray-400";
+  const valueClasses = "text-xl font-bold";
 
   return (
-    <div className={`p-4 rounded-lg shadow-lg ${darkMode ? "bg-gray-800" : "bg-white"}`}>
-      <h2 className="text-xl font-bold mb-4">📊 Technikai Indikátorok ({coin.toUpperCase()})</h2>
-      <p>📈 Ichimoku Bázis: {indicators[0].ichimoku_base.toFixed(2)}</p>
-      <p>📉 Ichimoku Konverzió: {indicators[0].ichimoku_conversion.toFixed(2)}</p>
-      <p>🌀 Fibonacci: {indicators[0].ema.toFixed(2)}</p>
-      <p>📊 RSI: {indicators[0].rsi.toFixed(2)}</p>
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold mb-4 text-center">📍 {coin.toUpperCase()} Technikai Indikátorok</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className={`p-4 rounded-lg shadow ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+          <p className={labelClasses}>Ichimoku Bázis</p>
+          <p className={`${valueClasses} text-blue-400`}>{indicators[0].ichimoku_base.toFixed(2)}</p>
+        </div>
+        <div className={`p-4 rounded-lg shadow ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+          <p className={labelClasses}>Ichimoku Konverzió</p>
+          <p className={`${valueClasses} text-indigo-400`}>{indicators[0].ichimoku_conversion.toFixed(2)}</p>
+        </div>
+        <div className={`p-4 rounded-lg shadow ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+          <p className={labelClasses}>Fibonacci (EMA)</p>
+          <p className={`${valueClasses} text-emerald-400`}>{indicators[0].ema.toFixed(2)}</p>
+        </div>
+        <div className={`p-4 rounded-lg shadow ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+          <p className={labelClasses}>RSI</p>
+          <p className={`${valueClasses} text-yellow-400`}>{indicators[0].rsi.toFixed(2)}</p>
+        </div>
+      </div>
     </div>
   );
 }
