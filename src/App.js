@@ -7,6 +7,7 @@ import NewsSection from "./components/NewsSection";
 import Heatmap from "./components/Heatmap";
 import TechnicalIndicators from "./components/TechnicalIndicators";
 import ModernNavbar from "./components/ModernNavbar";
+import CryptoForecastFaceplate from "./components/CryptoForecastFaceplate";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -19,62 +20,72 @@ function App() {
   };
 
   return (
-    <div className={darkMode ? "bg-gray-900 text-white min-h-screen" : "bg-white text-black min-h-screen"}>
-      
-      {/* 🔹 Modernizált Felső Navigációs Sáv */}
+    <div className={darkMode ? "app-shell app-shell-dark" : "app-shell app-shell-light"}>
       <ModernNavbar darkMode={darkMode} setDarkMode={setDarkMode} onSearch={() => {}} />
 
-      {/* 🔹 Piaci Összegzés */}
-      <MarketOverview darkMode={darkMode} />
+      <main className="dashboard-layout">
+        <CryptoForecastFaceplate
+          selectedCoin={selectedCoin}
+          setSelectedCoin={setSelectedCoin}
+          darkMode={darkMode}
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mx-6">
-        {/* 🔹 Hőtérkép */}
-        <div className="p-4 bg-gray-800 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold text-center mb-4">🌡️ Kripto Hőtérkép</h2>
-          <Heatmap darkMode={darkMode} />
+        <MarketOverview darkMode={darkMode} />
+
+        <div className="dashboard-section-grid">
+          <section className="dashboard-card">
+            <div className="section-heading">
+              <span>Market heat</span>
+              <h2>Crypto Heatmap</h2>
+            </div>
+            <Heatmap darkMode={darkMode} />
+          </section>
+
+          <section className="dashboard-card dashboard-card-wide">
+            <div className="section-heading">
+              <span>24 hour movement</span>
+              <h2>Top Movers</h2>
+            </div>
+            <TopMovers darkMode={darkMode} />
+          </section>
         </div>
 
-        {/* 🔹 Top Movers */}
-        <div className="p-4 bg-gray-800 rounded-lg shadow-lg md:col-span-2">
-          <h2 className="text-xl font-bold text-center mb-4">📈 Legnagyobb Mozgások (24h)</h2>
-          <TopMovers darkMode={darkMode} />
-        </div>
-      </div>
+        <section className="dashboard-card">
+          <div className="section-heading">
+            <span>Market list</span>
+            <h2>Tracked Cryptocurrencies</h2>
+          </div>
+          <CoinList darkMode={darkMode} />
+        </section>
 
-      {/* 🔹 Coin Lista */}
-      <div className="mx-6 mt-6">
-        <CoinList darkMode={darkMode} />
-      </div>
+        <section className="dashboard-card">
+          <div className="section-heading">
+            <span>Crypto news</span>
+            <h2>Latest Market Information</h2>
+          </div>
+          <NewsSection darkMode={darkMode} />
+        </section>
 
-      {/* 🔹 Kripto Hírek */}
-      <div className="mx-6 mt-6">
-        <NewsSection darkMode={darkMode} />
-      </div>
+        <section className="dashboard-card technical-panel">
+          <div className="section-heading centered">
+            <span>Technical workstation</span>
+            <h2>{selectedCoin} Technical Analysis</h2>
+          </div>
 
-      {/* 🔹 Technikai Elemzés */}
-      <div className="mt-6 mx-6">
-        <div className={`p-6 rounded-xl shadow-lg ${darkMode ? "bg-gray-800" : "bg-white"}`}>
-          <h2 className="text-xl font-bold text-center mb-6">📊 Technikai Elemzés</h2>
-          
-          {/* Coin választó gombok */}
-          <div className="flex justify-center flex-wrap gap-4 mb-6">
+          <div className="coin-selector-modern">
             {["BTC", "ETH", "DOGE"].map((coin) => (
               <button
                 key={coin}
+                type="button"
                 onClick={() => setSelectedCoin(coin)}
-                className={`px-5 py-2 rounded-full font-semibold transition ${
-                  selectedCoin === coin
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "bg-gray-300 hover:bg-gray-400 text-black dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                }`}
+                className={selectedCoin === coin ? "active" : ""}
               >
                 {coin}
               </button>
             ))}
           </div>
 
-          {/* Chart */}
-          <div className="rounded-lg overflow-hidden mb-6">
+          <div className="chart-frame">
             <TradingViewWidget
               symbol={`${selectedCoin}USDT`}
               indicators={["Fibonacci", "Ichimoku", "RSI"]}
@@ -82,14 +93,12 @@ function App() {
             />
           </div>
 
-          {/* Technikai indikátorok – coinMap alapján */}
           <TechnicalIndicators coin={coinMap[selectedCoin]} darkMode={darkMode} />
-        </div>
-      </div>
+        </section>
+      </main>
 
-      {/* 🔹 Lábjegyzet */}
-      <footer className="mt-10 text-center text-gray-400">
-        <p>🚀 CryptoVision | Minden jog fenntartva © 2025</p>
+      <footer className="dashboard-footer">
+        <p>CryptoVision Forecast Dashboard | Educational market analysis interface</p>
       </footer>
     </div>
   );
