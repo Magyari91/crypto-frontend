@@ -1,6 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchForecastAnalytics } from "../services/api";
 
+function waitForRetry(milliseconds, signal) {
+  return new Promise((resolve, reject) => {
+    let timeout;
+    const onAbort = () => {
+      window.clearTimeout(timeout);
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    timeout = window.setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, milliseconds);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 export function useForecastAnalytics(coin, horizon, dashboardVersion) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -18,8 +33,23 @@ export function useForecastAnalytics(coin, horizon, dashboardVersion) {
     setLoading(true);
     setError("");
 
-    fetchForecastAnalytics({ coin, horizon, signal: controller.signal })
-      .then((payload) => setData(payload))
+    const loadAnalytics = async () => {
+      while (!controller.signal.aborted) {
+        const payload = await fetchForecastAnalytics({
+          coin,
+          horizon,
+          signal: controller.signal,
+        });
+        if (payload.status !== "pending") {
+          setData(payload);
+          return;
+        }
+        const retrySeconds = Math.max(2, Number(payload.retry_after_seconds) || 5);
+        await waitForRetry(retrySeconds * 1000, controller.signal);
+      }
+    };
+
+    loadAnalytics()
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
           setError(requestError.message || "A modell visszamérése most nem érhető el.");

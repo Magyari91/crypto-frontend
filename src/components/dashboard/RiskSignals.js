@@ -15,6 +15,13 @@ function RiskSignals({ forecast, risk }) {
   const SpecialistIcon = specialist?.active ? FiCpu : FiPauseCircle;
   const probability = forecast.probability_forecast;
   const probabilityFeatures = probability?.top_features || [];
+  const distributionShift = probability?.distribution_shift;
+  const shiftLabels = {
+    stable: "Stabil",
+    watch: "Figyelendő",
+    elevated: "Emelkedett",
+    insufficient: "Nincs elég adat",
+  };
 
   return (
     <section className="surface risk-panel" id="risk" aria-labelledby="risk-title">
@@ -87,6 +94,13 @@ function RiskSignals({ forecast, risk }) {
                 {probability.stability.historical_total_checks
                   ? `${probability.stability.historical_positive_checks}/${probability.stability.historical_total_checks}`
                   : `${probability.stability.positive_blocks}/${probability.stability.total_blocks || 0}`}
+              </dd>
+            </div>
+            <div>
+              <dt>Adateloszlás</dt>
+              <dd>
+                {shiftLabels[distributionShift?.status] || "-"}
+                {distributionShift?.score != null ? ` · ${distributionShift.score.toFixed(2)}` : ""}
               </dd>
             </div>
           </dl>

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 import DashboardControls from "./components/dashboard/DashboardControls";
 import { ErrorState, LoadingDashboard } from "./components/dashboard/DashboardStates";
+import DerivativesMetrics from "./components/dashboard/DerivativesMetrics";
 import ForecastSummary from "./components/dashboard/ForecastSummary";
 import ForecastAnalytics from "./components/dashboard/ForecastAnalytics";
 import MarketMetrics from "./components/dashboard/MarketMetrics";
@@ -26,6 +27,7 @@ function DashboardContent({ data, risk, selectedCoin, analytics }) {
     <>
       <MarketMetrics market={data.market} />
       <ForecastSummary selected={data.selected} generatedAt={data.generated_at} />
+      <DerivativesMetrics data={data.derivatives} />
 
       <div className="analysis-grid">
         <PriceChart selected={data.selected} />

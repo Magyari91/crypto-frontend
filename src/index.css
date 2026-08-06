@@ -495,6 +495,93 @@ a {
   font-style: normal;
 }
 
+.derivatives-panel {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.derivatives-panel.unavailable {
+  box-shadow: none;
+}
+
+.derivatives-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.derivative-metric {
+  display: flex;
+  min-width: 0;
+  min-height: 94px;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-right: 1px solid var(--border);
+}
+
+.derivative-metric:last-child {
+  border-right: 0;
+}
+
+.derivative-metric > svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  color: var(--accent);
+}
+
+.derivative-metric:nth-child(2) > svg {
+  color: var(--warning);
+}
+
+.derivative-metric:nth-child(3) > svg {
+  color: var(--positive);
+}
+
+.derivative-metric:nth-child(4) > svg {
+  color: var(--negative);
+}
+
+.derivative-metric span,
+.derivative-metric small,
+.derivative-metric strong,
+.derivative-metric em {
+  min-width: 0;
+}
+
+.derivative-metric small,
+.derivative-metric strong,
+.derivative-metric em {
+  display: block;
+}
+
+.derivative-metric small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.derivative-metric strong {
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+}
+
+.derivative-metric em {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.probability-status .specialist-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .forecast-summary {
   display: grid;
   grid-template-columns: minmax(190px, 1.25fr) minmax(150px, 0.9fr) minmax(150px, 0.9fr) minmax(150px, 0.8fr) minmax(210px, 1.1fr);
@@ -2194,6 +2281,37 @@ tbody tr:hover,
 
   .panel-heading {
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 1060px) {
+  .derivatives-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .derivative-metric:nth-child(2) {
+    border-right: 0;
+  }
+
+  .derivative-metric:nth-child(n + 3) {
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 430px) {
+  .derivatives-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .derivative-metric,
+  .derivative-metric:nth-child(2) {
+    min-height: 76px;
+    border-top: 1px solid var(--border);
+    border-right: 0;
+  }
+
+  .derivative-metric:first-child {
+    border-top: 0;
   }
 }
 

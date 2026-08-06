@@ -81,6 +81,7 @@ function AnalyticsError({ message, onRetry }) {
 function BacktestContent({ backtest }) {
   const { summary, recent_results: recentResults, agreement_bands: agreementBands } = backtest;
   const probability = summary.probability;
+  const probabilityAudit = probability?.challenger || probability;
   const calibrationBins = probability?.reliability_bins || [];
   const technicalSkill = summary.skill_vs_technical_pct ?? summary.skill_vs_baseline_pct;
   const technicalMae = summary.technical_mae_pct ?? summary.baseline_mae_pct;
@@ -97,7 +98,7 @@ function BacktestContent({ backtest }) {
         ? "Fejlesztést igényel"
         : "A korábbi modell szintje";
   const activeAccuracy = summary.active_directional_accuracy;
-  const probabilitySkill = probability?.brier_skill_pct;
+  const probabilitySkill = probabilityAudit?.brier_skill_pct;
   const probabilityTone =
     probabilitySkill > 0.25 ? "positive" : probabilitySkill < -0.25 ? "negative" : "";
 
@@ -105,23 +106,23 @@ function BacktestContent({ backtest }) {
     <>
       <div className="audit-metrics">
         <Metric
-          label={probability ? "Brier score" : "Aktív jel találati aránya"}
-          value={probability ? formatScore(probability.brier_score) : activeAccuracy == null ? "Nincs aktív jel" : formatPercent(activeAccuracy)}
+          label={probability ? probability.challenger ? "Challenger Brier score" : "Brier score" : "Aktív jel találati aránya"}
+          value={probability ? formatScore(probabilityAudit.brier_score) : activeAccuracy == null ? "Nincs aktív jel" : formatPercent(activeAccuracy)}
           detail={probability
-            ? `alapesély: ${formatScore(probability.baseline_brier_score)}`
+            ? `alapesély: ${formatScore(probabilityAudit.baseline_brier_score)}`
             : `${formatPercent(summary.signal_coverage_pct)} lefedettség · ${formatPercent(summary.specialist_usage_pct || 0)} specialista`}
         />
         <Metric
-          label={probability ? "Brier-előny" : "Átlagos modellhiba"}
-          value={probability ? formatPercent(probability.brier_skill_pct, true) : formatPercent(summary.mae_pct)}
-          detail={probability ? `${summary.samples} walk-forward minta` : "MAE, százalékpont"}
+          label={probability ? probability.challenger ? "Challenger Brier-előny" : "Brier-előny" : "Átlagos modellhiba"}
+          value={probability ? formatPercent(probabilityAudit.brier_skill_pct, true) : formatPercent(summary.mae_pct)}
+          detail={probability ? `${probabilityAudit.samples || summary.samples} walk-forward minta` : "MAE, százalékpont"}
           tone={probability ? probabilityTone : ""}
         />
         <Metric
           label={probability ? "ROC AUC" : "Korábbi modell hibája"}
-          value={probability ? formatScore(probability.roc_auc, 3) : formatPercent(technicalMae)}
+          value={probability ? formatScore(probabilityAudit.roc_auc, 3) : formatPercent(technicalMae)}
           detail={probability
-            ? `${formatPercent(probability.calibration_error_pct)} kalibrációs hiba`
+            ? `${formatPercent(probabilityAudit.calibration_error_pct)} kalibrációs hiba`
             : `v2 technikai modell · ${summary.samples} minta`}
         />
         <Metric
