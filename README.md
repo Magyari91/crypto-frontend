@@ -1,70 +1,50 @@
-# Getting Started with Create React App
+# CryptoVision frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React dashboard a CryptoVision backendhez. A böngésző a piaci összegzés, a technikai
+jelzés, a piaclista és a hírek mellett a walk-forward visszamérést és az élő
+előrejelzési naplót is megjeleníti.
 
-## Available Scripts
+A v4 előrejelzési nézet piaci rezsimet, időtávhoz választott specialistamodellt,
+tanító- és holdoutmintát, modell-előnyt, aktívjel-lefedettséget és 80%-os
+empirikus ársávot mutat. A teljesítménynézet az új modellt közvetlenül a v2
+technikai modellel is összeveti. Bizonyított előny hiányában a specialista
+kikapcsol, a rendszer pedig tartózkodhat az irányjelzéstől.
 
-In the project directory, you can run:
+A fő forecast-sáv külön eseményvalószínűséget jelenít meg, például
+`P(7 napos hozam >= +1%)`. Az aktív, kalibrált modell és a historikus alapesély
+egyértelműen elkülönül; elutasított modellnél a jelöltérték csak másodlagos
+információ. A kockázati nézet Brier-előnyt, ROC AUC-t, stabilitási kaput és
+fontos jellemzőket, a teljesítménynézet Brier score-t, kalibrációs hibát,
+BUY-jelölt pontosságot és reliability sávokat mutat.
 
-### `npm start`
+Az 1 és 7 napos teljesítménynézetben külön Modelllabor indítható. Ez 6480 órás
+OHLCV-adaton ellenőrzi az irányjelöltet és a 80%-os mozgási sáv kvantilismodelljét,
+majd megmutatja a holdout-előnyt, lefedettséget és a több időblokkon mért
+stabilitást. A labor eredménye nem írja felül automatikusan az éles előrejelzést.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Helyi indítás
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Másold a `.env.example` tartalmát egy `.env` fájlba.
+2. Indítsd el a backendet a `http://localhost:8000` címen.
+3. Telepítsd és indítsd a frontendet:
 
-### `npm test`
+```powershell
+npm install
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+A dashboard címe: `http://localhost:3000`
 
-### `npm run build`
+## Éles környezet
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Állítsd be a `REACT_APP_API_URL` változót a telepített backend címére. Az alkalmazás
+alapértelmezett éles címe jelenleg `https://crypto-backend-pv99.onrender.com`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Ellenőrzés
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```powershell
+npm test -- --watchAll=false
+npm run build
+```
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+A megjelenített előrejelzés kísérleti technikai jelzés, nem pénzügyi tanács.
