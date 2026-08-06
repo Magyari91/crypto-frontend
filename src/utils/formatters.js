@@ -16,6 +16,7 @@ function currencyFormatter(maximumFractionDigits) {
 }
 
 export function formatPrice(value) {
+  if (value == null || value === "") return "-";
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
   const digits = number < 1 ? 5 : number < 100 ? 2 : 0;
@@ -23,6 +24,7 @@ export function formatPrice(value) {
 }
 
 export function formatCompactCurrency(value) {
+  if (value == null || value === "") return "-";
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
   return new Intl.NumberFormat("hu-HU", {
@@ -34,6 +36,7 @@ export function formatCompactCurrency(value) {
 }
 
 export function formatPercent(value, withSign = false) {
+  if (value == null || value === "") return "-";
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
   const sign = withSign && number > 0 ? "+" : "";

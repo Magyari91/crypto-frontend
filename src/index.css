@@ -1585,10 +1585,22 @@ tbody tr:hover,
   gap: 10px;
 }
 
-.coin-cell img {
+.coin-cell img,
+.coin-symbol-avatar {
   width: 28px;
   height: 28px;
   flex: 0 0 28px;
+}
+
+.coin-symbol-avatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .coin-cell strong,

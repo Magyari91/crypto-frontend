@@ -42,7 +42,11 @@ function DashboardContent({ data, risk, selectedCoin, analytics }) {
       />
 
       <div className="market-grid">
-        <MarketTable rows={data.watchlist} selectedCoin={selectedCoin} />
+        <MarketTable
+          rows={data.watchlist}
+          selectedCoin={selectedCoin}
+          source={data.market_data_source}
+        />
         <MoversPanel movers={data.movers} />
       </div>
 

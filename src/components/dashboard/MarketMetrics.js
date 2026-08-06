@@ -12,20 +12,21 @@ const sentimentLabels = {
 
 function MarketMetrics({ market }) {
   const fearGreed = market.fear_greed || {};
+  const overviewAvailable = market.overview_available !== false;
   const metrics = [
     {
       label: "Teljes piaci érték",
-      value: formatCompactCurrency(market.total_market_cap),
+      value: overviewAvailable ? formatCompactCurrency(market.total_market_cap) : "-",
       icon: FiDollarSign,
     },
     {
       label: "24 órás forgalom",
-      value: formatCompactCurrency(market.total_volume_24h),
+      value: overviewAvailable ? formatCompactCurrency(market.total_volume_24h) : "-",
       icon: FiActivity,
     },
     {
       label: "BTC dominancia",
-      value: formatPercent(market.btc_dominance),
+      value: overviewAvailable ? formatPercent(market.btc_dominance) : "-",
       icon: FiPieChart,
     },
     {
