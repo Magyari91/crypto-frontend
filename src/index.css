@@ -1674,9 +1674,21 @@ tbody tr:hover,
   border-bottom: 0;
 }
 
-.mover-column li img {
+.mover-column li img,
+.mover-symbol-avatar {
   width: 24px;
   height: 24px;
+}
+
+.mover-symbol-avatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 0.62rem;
+  font-weight: 800;
 }
 
 .mover-column li strong,
