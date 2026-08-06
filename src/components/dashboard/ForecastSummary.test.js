@@ -3,13 +3,13 @@ import ForecastSummary from "./ForecastSummary";
 
 
 test("renders the calibrated target and prediction interval", () => {
-  render(
+  const { container } = render(
     <ForecastSummary
       generatedAt="2026-07-11T08:00:00+00:00"
       selected={{
         symbol: "BTC",
         name: "Bitcoin",
-        image: "https://example.test/btc.png",
+        image: null,
         change_24h: 1.2,
         current_price: 64000,
         forecast: {
@@ -43,4 +43,5 @@ test("renders the calibrated target and prediction interval", () => {
   expect(screen.getByText("47,00%")).toBeInTheDocument();
   expect(screen.getByText(/jelölt: 58,30%/)).toBeInTheDocument();
   expect(screen.getByRole("progressbar", { name: "Emelkedési esemény valószínűsége" })).toBeInTheDocument();
+  expect(container.querySelector(".asset-symbol-avatar")).toHaveTextContent("B");
 });

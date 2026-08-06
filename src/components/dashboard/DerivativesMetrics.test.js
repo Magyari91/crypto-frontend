@@ -26,3 +26,11 @@ test("renders futures context with funding and order-flow metrics", () => {
   expect(screen.getByText("1,25×")).toBeInTheDocument();
   expect(screen.getByText("Vételi rész: 52,40%")).toBeInTheDocument();
 });
+
+
+test("does not turn unavailable ratios into zero", () => {
+  render(<DerivativesMetrics data={{ available: false }} />);
+
+  expect(screen.queryByText("0,00×")).not.toBeInTheDocument();
+  expect(screen.getByText("Átmenetileg nincs adat")).toBeInTheDocument();
+});

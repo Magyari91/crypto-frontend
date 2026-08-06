@@ -620,10 +620,21 @@ a {
   gap: 14px;
 }
 
-.asset-identity img {
+.asset-identity img,
+.asset-symbol-avatar {
   width: 48px;
   height: 48px;
   flex: 0 0 48px;
+}
+
+.asset-symbol-avatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 1rem !important;
 }
 
 .asset-identity span {

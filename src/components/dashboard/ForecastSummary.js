@@ -12,7 +12,13 @@ function ForecastSummary({ selected, generatedAt }) {
   const forecast = selected.forecast;
   const direction = directions[forecast.direction_key] || directions.neutral;
   const DirectionIcon = direction.icon;
-  const positive = selected.change_24h >= 0;
+  const changeAvailable =
+    selected.change_24h != null && Number.isFinite(Number(selected.change_24h));
+  const changeClass = changeAvailable
+    ? Number(selected.change_24h) >= 0
+      ? "positive"
+      : "negative"
+    : "";
   const interval = forecast.prediction_interval;
   const probability = forecast.probability_forecast;
   const probabilityValue = probability?.probability_pct ?? forecast.confidence;
@@ -28,11 +34,17 @@ function ForecastSummary({ selected, generatedAt }) {
   return (
     <section className={`forecast-summary ${forecast.direction_key}`} id="forecast">
       <div className="asset-identity">
-        <img src={selected.image} alt="" />
+        {selected.image ? (
+          <img src={selected.image} alt="" />
+        ) : (
+          <span className="asset-symbol-avatar" aria-hidden="true">
+            {selected.symbol.slice(0, 1)}
+          </span>
+        )}
         <div>
           <span>{selected.symbol}</span>
           <h2>{selected.name}</h2>
-          <p className={positive ? "positive" : "negative"}>
+          <p className={changeClass}>
             {formatPercent(selected.change_24h, true)} az elmúlt 24 órában
           </p>
         </div>

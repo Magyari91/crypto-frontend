@@ -3,6 +3,7 @@ import { FiActivity, FiBarChart2, FiRepeat, FiUsers } from "react-icons/fi";
 import { formatCompactCurrency, formatPercent } from "../../utils/formatters";
 
 function ratio(value) {
+  if (value == null || value === "") return "-";
   const number = Number(value);
   return Number.isFinite(number) ? `${number.toFixed(2).replace(".", ",")}×` : "-";
 }
