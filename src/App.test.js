@@ -1,8 +1,14 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+test("renders the dashboard controls while market data is loading", () => {
+  global.fetch = jest.fn(() => new Promise(() => {}));
+
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  expect(
+    screen.getByRole("heading", { name: /piaci állapot és rövid távú modellnézet/i })
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "BTC" })).toBeInTheDocument();
+  expect(screen.getByLabelText(/saját kockázati profil/i)).toBeInTheDocument();
 });
