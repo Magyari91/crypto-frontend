@@ -1,5 +1,7 @@
 import React from "react";
 import {
+  FiActivity,
+  FiAlertTriangle,
   FiArrowDownRight,
   FiArrowUpRight,
   FiBarChart2,
@@ -17,6 +19,27 @@ const directions = {
   bullish: { label: "Emelkedő", icon: FiArrowUpRight },
   bearish: { label: "Csökkenő", icon: FiArrowDownRight },
   neutral: { label: "Semleges", icon: FiMinus },
+};
+
+const readinessStates = {
+  storage_required: {
+    label: "Tartós tárhely szükséges",
+    icon: FiAlertTriangle,
+    tone: "warning",
+  },
+  collecting: { label: "Mintagyűjtés", icon: FiActivity, tone: "pending" },
+  maturing: { label: "Címkék érlelődnek", icon: FiClock, tone: "pending" },
+  labeling_delayed: {
+    label: "Címkézésre vár",
+    icon: FiAlertTriangle,
+    tone: "warning",
+  },
+  collecting_labels: {
+    label: "Tanítóminta épül",
+    icon: FiActivity,
+    tone: "pending",
+  },
+  ready: { label: "Tanítható adatkészlet", icon: FiCheckCircle, tone: "ready" },
 };
 
 function formatDate(value, includeTime = false) {
@@ -53,6 +76,83 @@ function Metric({ label, value, detail, tone = "" }) {
       <strong>{value}</strong>
       <span>{detail}</span>
     </div>
+  );
+}
+
+function ReadinessMetric({ label, value, detail }) {
+  return (
+    <div className="readiness-metric">
+      <small>{label}</small>
+      <strong>{value}</strong>
+      <span>{detail}</span>
+    </div>
+  );
+}
+
+function TrainingReadiness({ readiness }) {
+  if (!readiness) return null;
+
+  const state = readinessStates[readiness.status] || readinessStates.collecting;
+  const StateIcon = state.icon;
+  const persistent = Boolean(readiness.storage?.persistent);
+  const remaining = Number(readiness.remaining_independent_labels) || 0;
+  const overdue = Number(readiness.overdue_sample_count) || 0;
+  const labelDetail = overdue
+    ? `${overdue} lejárt minta vár címkére`
+    : readiness.next_due_at
+      ? `következő lejárat: ${formatDate(readiness.next_due_at, true)}`
+      : "nincs esedékes címke";
+
+  return (
+    <section
+      className="surface training-readiness-panel"
+      aria-labelledby="training-readiness-title"
+    >
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">Pont-időben gyűjtött adatok</span>
+          <h2 id="training-readiness-title">Tanítási készültség</h2>
+        </div>
+        <span className={`readiness-state ${state.tone}`}>
+          <StateIcon aria-hidden="true" />
+          {state.label}
+        </span>
+      </div>
+
+      <div className="readiness-metrics">
+        <ReadinessMetric
+          label="Tárolás"
+          value={persistent ? "PostgreSQL" : "Ideiglenes SQLite"}
+          detail={persistent ? "újraindításálló" : "újraindításkor törlődhet"}
+        />
+        <ReadinessMetric
+          label="Összes snapshot"
+          value={readiness.sample_count}
+          detail="pont-időbeli feature minta"
+        />
+        <ReadinessMetric
+          label="Lezárt kimenet"
+          value={readiness.labeled_sample_count}
+          detail={`${formatPercent(readiness.label_coverage_pct)} lefedettség · ${labelDetail}`}
+        />
+        <ReadinessMetric
+          label="Független lezárt nap"
+          value={`${readiness.independent_labeled_days}/${readiness.minimum_independent_labels}`}
+          detail={remaining ? `${remaining} hiányzik a tanítási kapuhoz` : "a minimum teljesült"}
+        />
+      </div>
+
+      <div className="readiness-progress">
+        <div>
+          <span>Adatkészlet előrehaladása</span>
+          <strong>{formatPercent(readiness.progress_pct)}</strong>
+        </div>
+        <div className="readiness-track" aria-hidden="true">
+          <span style={{ width: `${Math.min(100, readiness.progress_pct || 0)}%` }} />
+        </div>
+        <p>{readiness.reason}</p>
+      </div>
+    </section>
   );
 }
 
@@ -305,6 +405,8 @@ function ForecastAnalytics({ data, loading, error, onRetry }) {
         {!data && error && <AnalyticsError message={error} onRetry={onRetry} />}
         {data && <ForecastHistory history={data.history || []} />}
       </section>
+
+      {data && <TrainingReadiness readiness={data.training_readiness} />}
 
       {data && [1, 7].includes(data.horizon_days) && (
         <ModelLab coin={data.asset.id} horizon={data.horizon_days} />

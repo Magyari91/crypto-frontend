@@ -74,6 +74,21 @@ const analytics = {
       status: "pending",
     },
   ],
+  training_readiness: {
+    status: "storage_required",
+    ready_for_training: false,
+    reason: "A minták az újraindításkor elvesznek. Tartós PostgreSQL szükséges az élő modell tanításához.",
+    sample_count: 18,
+    labeled_sample_count: 4,
+    independent_labeled_days: 3,
+    overdue_sample_count: 2,
+    label_coverage_pct: 22.22,
+    minimum_independent_labels: 360,
+    remaining_independent_labels: 357,
+    progress_pct: 0.83,
+    next_due_at: "2026-07-18T12:00:00+00:00",
+    storage: { backend: "sqlite", persistent: false },
+  },
 };
 
 
@@ -95,6 +110,10 @@ test("renders backtest metrics and the live forecast journal", () => {
   expect(screen.getByText("63,50%")).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Előrejelzési előzmények" })).toBeInTheDocument();
   expect(screen.getByText(/Kiértékelés:/)).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Tanítási készültség" })).toBeInTheDocument();
+  expect(screen.getByText("Tartós tárhely szükséges")).toBeInTheDocument();
+  expect(screen.getByText("3/360")).toBeInTheDocument();
+  expect(screen.getByText(/2 lejárt minta vár címkére/)).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Modelllabor" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Órás ellenőrzés" })).toBeInTheDocument();
 });

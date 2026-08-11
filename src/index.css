@@ -1076,6 +1076,121 @@ a {
   overflow: hidden;
 }
 
+.training-readiness-panel {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.readiness-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 0.67rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.readiness-state svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.readiness-state.warning {
+  color: var(--warning);
+}
+
+.readiness-state.ready {
+  color: var(--positive);
+}
+
+.readiness-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+}
+
+.readiness-metric {
+  min-width: 0;
+  min-height: 96px;
+  padding: 16px;
+  border-right: 1px solid var(--border);
+}
+
+.readiness-metric:last-child {
+  border-right: 0;
+}
+
+.readiness-metric small,
+.readiness-metric strong,
+.readiness-metric span {
+  display: block;
+}
+
+.readiness-metric small {
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.readiness-metric strong {
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.readiness-metric span {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.readiness-progress {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.readiness-progress > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.63rem;
+}
+
+.readiness-progress strong {
+  color: var(--text-soft);
+  font-size: 0.68rem;
+}
+
+.readiness-track {
+  height: 5px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--border);
+}
+
+.readiness-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.readiness-progress p {
+  margin: 9px 0 0;
+  color: var(--text-muted);
+  font-size: 0.63rem;
+  line-height: 1.45;
+}
+
 .model-lab-run {
   display: inline-flex;
   min-height: 38px;
@@ -2174,6 +2289,18 @@ tbody tr:hover,
     grid-template-columns: 1fr 1fr;
   }
 
+  .readiness-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .readiness-metric:nth-child(2) {
+    border-right: 0;
+  }
+
+  .readiness-metric:nth-child(n + 3) {
+    border-top: 1px solid var(--border);
+  }
+
   .audit-metric:nth-child(2) {
     border-right: 0;
   }
@@ -2265,6 +2392,7 @@ tbody tr:hover,
   .metric-strip,
   .forecast-summary,
   .audit-metrics,
+  .readiness-metrics,
   .risk-levels,
   .movers-grid {
     grid-template-columns: 1fr;
@@ -2289,6 +2417,17 @@ tbody tr:hover,
   }
 
   .audit-metric:first-child {
+    border-top: 0;
+  }
+
+  .readiness-metric,
+  .readiness-metric:nth-child(2) {
+    min-height: 82px;
+    border-top: 1px solid var(--border);
+    border-right: 0;
+  }
+
+  .readiness-metric:first-child {
     border-top: 0;
   }
 
