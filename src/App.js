@@ -50,7 +50,11 @@ function DashboardContent({ data, risk, selectedCoin, analytics }) {
         <MoversPanel movers={data.movers} />
       </div>
 
-      <NewsPanel articles={data.news || []} />
+      <NewsPanel
+        articles={data.news || []}
+        sentiment={data.news_sentiment}
+        asset={data.selected}
+      />
     </>
   );
 }

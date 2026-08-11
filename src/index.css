@@ -1829,6 +1829,223 @@ tbody tr:hover,
 
 .news-panel {
   margin-top: 16px;
+  scroll-margin-top: 88px;
+}
+
+.sentiment-overview {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.sentiment-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.25fr) repeat(3, minmax(132px, 1fr));
+}
+
+.sentiment-summary-grid > div {
+  min-width: 0;
+  min-height: 92px;
+  padding: 16px 18px;
+  border-right: 1px solid var(--border);
+}
+
+.sentiment-summary-grid > div:last-child {
+  border-right: 0;
+}
+
+.sentiment-primary {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+}
+
+.sentiment-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: var(--surface);
+}
+
+.sentiment-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sentiment-overview.positive .sentiment-icon,
+.sentiment-overview.positive .sentiment-primary em {
+  color: var(--positive);
+}
+
+.sentiment-overview.negative .sentiment-icon,
+.sentiment-overview.negative .sentiment-primary em {
+  color: var(--negative);
+}
+
+.sentiment-primary small,
+.sentiment-primary strong,
+.sentiment-stat small,
+.sentiment-stat strong,
+.sentiment-stat span {
+  display: block;
+  min-width: 0;
+}
+
+.sentiment-primary small,
+.sentiment-stat small {
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.sentiment-primary strong {
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.sentiment-primary em {
+  color: var(--text-soft);
+  font-size: 1.05rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.sentiment-stat {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sentiment-stat strong {
+  margin-top: 6px;
+  font-size: 0.86rem;
+}
+
+.sentiment-stat > span {
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sentiment-stat.trend strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sentiment-stat.trend strong svg {
+  width: 15px;
+  height: 15px;
+}
+
+.sentiment-stat.trend.improving strong {
+  color: var(--positive);
+}
+
+.sentiment-stat.trend.deteriorating strong {
+  color: var(--negative);
+}
+
+.sentiment-distribution {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  min-height: 58px;
+  padding: 11px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.sentiment-distribution-copy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+
+.sentiment-distribution-copy span,
+.sentiment-model-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.sentiment-distribution-copy i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.sentiment-distribution-copy i.positive,
+.sentiment-distribution-track .positive {
+  background: var(--positive);
+}
+
+.sentiment-distribution-copy i.negative,
+.sentiment-distribution-track .negative {
+  background: var(--negative);
+}
+
+.sentiment-distribution-copy i.neutral,
+.sentiment-distribution-track .neutral {
+  background: var(--warning);
+}
+
+.sentiment-distribution-track {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--border);
+}
+
+.sentiment-distribution-track span {
+  min-width: 0;
+  height: 100%;
+}
+
+.sentiment-model-role {
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+
+.sentiment-model-role svg {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+}
+
+.sentiment-model-role strong {
+  color: var(--text-soft);
+}
+
+.sentiment-unavailable {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface-soft);
+  font-size: 0.72rem;
+}
+
+.sentiment-unavailable svg {
+  flex: 0 0 16px;
 }
 
 .news-list {
@@ -1917,6 +2134,34 @@ tbody tr:hover,
   align-items: center;
   gap: 4px;
   white-space: nowrap;
+}
+
+.article-sentiment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 750;
+}
+
+.article-sentiment svg {
+  width: 13px;
+  height: 13px;
+}
+
+.article-sentiment em {
+  color: var(--text-soft);
+  font-style: normal;
+}
+
+.article-sentiment.positive {
+  color: var(--positive);
+}
+
+.article-sentiment.negative {
+  color: var(--negative);
 }
 
 .news-list h3 {
@@ -2339,6 +2584,27 @@ tbody tr:hover,
     grid-template-columns: 1fr;
   }
 
+  .sentiment-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sentiment-summary-grid > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .sentiment-summary-grid > div:nth-child(n + 3) {
+    border-top: 1px solid var(--border);
+  }
+
+  .sentiment-distribution {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .sentiment-model-role {
+    justify-self: start;
+  }
+
   .news-list article,
   .news-list article:nth-child(3) {
     min-height: 0;
@@ -2455,6 +2721,26 @@ tbody tr:hover,
 
   .panel-heading {
     align-items: flex-start;
+  }
+
+  .sentiment-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sentiment-summary-grid > div,
+  .sentiment-summary-grid > div:nth-child(2n) {
+    min-height: 78px;
+    border-top: 1px solid var(--border);
+    border-right: 0;
+  }
+
+  .sentiment-summary-grid > div:first-child {
+    border-top: 0;
+  }
+
+  .sentiment-distribution-copy {
+    justify-content: space-between;
+    gap: 8px;
   }
 }
 
