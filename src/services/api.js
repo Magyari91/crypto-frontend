@@ -33,6 +33,20 @@ export async function fetchDashboard({ coin, horizon, signal }) {
   return response.json();
 }
 
+export async function fetchMarketCatalog({ limit = 200, signal }) {
+  const query = new URLSearchParams({ limit: String(limit) });
+  const response = await fetch(`${API_BASE_URL}/api/v1/markets?${query}`, {
+    signal,
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  return response.json();
+}
+
 export async function fetchForecastAnalytics({ coin, horizon, signal }) {
   const query = new URLSearchParams({
     coin,
