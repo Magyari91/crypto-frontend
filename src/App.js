@@ -14,6 +14,7 @@ import RiskSignals from "./components/dashboard/RiskSignals";
 import Sidebar from "./components/dashboard/Sidebar";
 import { useDashboardData } from "./hooks/useDashboardData";
 import { useForecastAnalytics } from "./hooks/useForecastAnalytics";
+import { useMarketCatalog } from "./hooks/useMarketCatalog";
 
 function initialTheme() {
   const saved = window.localStorage.getItem("cryptovision-theme");
@@ -22,7 +23,7 @@ function initialTheme() {
   return "dark";
 }
 
-function DashboardContent({ data, risk, selectedCoin, analytics }) {
+function DashboardContent({ data, risk, selectedCoin, analytics, marketCatalog, onAnalyze }) {
   return (
     <>
       <MarketMetrics market={data.market} />
@@ -41,14 +42,17 @@ function DashboardContent({ data, risk, selectedCoin, analytics }) {
         onRetry={analytics.refresh}
       />
 
-      <div className="market-grid">
-        <MarketTable
-          rows={data.watchlist}
-          selectedCoin={selectedCoin}
-          source={data.market_data_source}
-        />
-        <MoversPanel movers={data.movers} />
-      </div>
+      <MarketTable
+        catalog={marketCatalog.data}
+        fallbackRows={data.watchlist}
+        selectedCoin={selectedCoin}
+        loading={marketCatalog.loading}
+        refreshing={marketCatalog.refreshing}
+        error={marketCatalog.error}
+        onRetry={marketCatalog.refresh}
+        onAnalyze={onAnalyze}
+      />
+      <MoversPanel movers={data.movers} />
 
       <NewsPanel
         articles={data.news || []}
@@ -64,6 +68,7 @@ function App() {
   const [coin, setCoin] = useState("bitcoin");
   const [horizon, setHorizon] = useState(7);
   const [risk, setRisk] = useState(5);
+  const [pendingAnalysisCoin, setPendingAnalysisCoin] = useState(null);
   const { data, error, loading, refreshing, refresh } = useDashboardData(coin, horizon);
 
   useEffect(() => {
@@ -84,6 +89,24 @@ function App() {
       ? analytics.data
       : null;
   }, [analytics.data, coin, horizon]);
+  const marketCatalog = useMarketCatalog(Boolean(matchingData));
+
+  useEffect(() => {
+    if (!pendingAnalysisCoin || matchingData?.selected?.id !== pendingAnalysisCoin) return;
+    document.getElementById("forecast")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setPendingAnalysisCoin(null);
+  }, [matchingData, pendingAnalysisCoin]);
+
+  const openAnalysis = (coinId) => {
+    setPendingAnalysisCoin(coinId);
+    setCoin(coinId);
+    window.history.replaceState(null, "", "#forecast");
+  };
+
+  const refreshAll = () => {
+    refresh();
+    marketCatalog.refresh();
+  };
 
   const online = Boolean(data) && !error;
   const pageLoading = loading || (!matchingData && refreshing);
@@ -124,8 +147,8 @@ function App() {
             risk={risk}
             onRiskChange={setRisk}
             supportedCoins={data?.supported_coins}
-            refreshing={refreshing}
-            onRefresh={refresh}
+            refreshing={refreshing || marketCatalog.refreshing}
+            onRefresh={refreshAll}
           />
 
           {error && data && (
@@ -142,6 +165,8 @@ function App() {
               risk={risk}
               selectedCoin={coin}
               analytics={{ ...analytics, data: matchingAnalytics }}
+              marketCatalog={marketCatalog}
+              onAnalyze={openAnalysis}
             />
           )}
 

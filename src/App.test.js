@@ -10,5 +10,7 @@ test("renders the dashboard controls while market data is loading", () => {
     screen.getByRole("heading", { name: /piaci állapot és rövid távú modellnézet/i })
   ).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "BTC" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "BNB" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "ADA" })).toBeInTheDocument();
   expect(screen.getByLabelText(/saját kockázati profil/i)).toBeInTheDocument();
 });
