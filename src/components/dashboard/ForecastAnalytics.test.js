@@ -89,6 +89,30 @@ const analytics = {
     next_due_at: "2026-07-18T12:00:00+00:00",
     storage: { backend: "sqlite", persistent: false },
   },
+  live_performance: {
+    all_time: {
+      samples: 24,
+      mae_pct: 2.1,
+      baseline_mae_pct: 3.0,
+      skill_vs_baseline_pct: 30,
+      active_directional_accuracy_pct: 62.5,
+      interval_coverage_pct: 79.17,
+    },
+    windows: [
+      {
+        days: 7,
+        samples: 5,
+        mae_pct: 1.8,
+        baseline_mae_pct: 2.6,
+        skill_vs_baseline_pct: 30.77,
+        active_directional_accuracy_pct: 60,
+        interval_coverage_pct: 80,
+      },
+      { days: 30, samples: 24 },
+      { days: 90, samples: 24 },
+    ],
+    methodology: "Csak a valóban publikált, lejárt előrejelzések kerülnek be.",
+  },
 };
 
 
@@ -114,6 +138,8 @@ test("renders backtest metrics and the live forecast journal", () => {
   expect(screen.getByText("Tartós tárhely szükséges")).toBeInTheDocument();
   expect(screen.getByText("3/360")).toBeInTheDocument();
   expect(screen.getByText(/2 lejárt minta vár címkére/)).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Valós teljesítmény" })).toBeInTheDocument();
+  expect(screen.getByText("+30,77%")).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Modelllabor" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Órás ellenőrzés" })).toBeInTheDocument();
 });

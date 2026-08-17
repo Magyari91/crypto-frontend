@@ -10,6 +10,7 @@ import {
   FiDatabase,
   FiMinus,
   FiRefreshCw,
+  FiTrendingUp,
   FiXCircle,
 } from "react-icons/fi";
 import { formatPercent, formatPrice } from "../../utils/formatters";
@@ -152,6 +153,82 @@ function TrainingReadiness({ readiness }) {
         </div>
         <p>{readiness.reason}</p>
       </div>
+    </section>
+  );
+}
+
+function LivePerformance({ performance }) {
+  if (!performance) return null;
+
+  const allTime = performance.all_time || {};
+  const rows = [
+    ...(performance.windows || []).map((window) => ({
+      ...window,
+      label: `${window.days} nap`,
+    })),
+    { ...allTime, label: "Teljes időszak" },
+  ];
+
+  return (
+    <section
+      className="surface live-performance-panel"
+      aria-labelledby="live-performance-title"
+    >
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">Éles, lejárt előrejelzések</span>
+          <h2 id="live-performance-title">Valós teljesítmény</h2>
+        </div>
+        <FiTrendingUp aria-hidden="true" />
+      </div>
+
+      {!allTime.samples ? (
+        <p className="empty-copy live-performance-empty">
+          Az első lejárt v5.1 előrejelzések után itt jelenik meg a 7, 30 és 90 napos
+          eredmény.
+        </p>
+      ) : (
+        <div className="live-performance-scroll">
+          <table className="live-performance-table">
+            <thead>
+              <tr>
+                <th>Időablak</th>
+                <th>Minta</th>
+                <th>MAE</th>
+                <th>Alap MAE</th>
+                <th>Előny</th>
+                <th>Aktív találat</th>
+                <th>80%-os sáv</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const skill = Number(row.skill_vs_baseline_pct);
+                const tone = Number.isFinite(skill)
+                  ? skill > 0
+                    ? "positive"
+                    : skill < 0
+                      ? "negative"
+                      : ""
+                  : "";
+                return (
+                  <tr key={row.label}>
+                    <th scope="row">{row.label}</th>
+                    <td>{row.samples || 0}</td>
+                    <td>{formatPercent(row.mae_pct)}</td>
+                    <td>{formatPercent(row.baseline_mae_pct)}</td>
+                    <td className={tone}>{formatPercent(row.skill_vs_baseline_pct, true)}</td>
+                    <td>{formatPercent(row.active_directional_accuracy_pct)}</td>
+                    <td>{formatPercent(row.interval_coverage_pct)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <p className="methodology-note">{performance.methodology}</p>
     </section>
   );
 }
@@ -407,6 +484,8 @@ function ForecastAnalytics({ data, loading, error, onRetry }) {
       </section>
 
       {data && <TrainingReadiness readiness={data.training_readiness} />}
+
+      {data && <LivePerformance performance={data.live_performance} />}
 
       {data && [1, 7].includes(data.horizon_days) && (
         <ModelLab coin={data.asset.id} horizon={data.horizon_days} />
