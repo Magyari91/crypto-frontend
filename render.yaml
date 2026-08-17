@@ -2,11 +2,25 @@ services:
   - type: web
     name: crypto-frontend
     runtime: static
-    buildCommand: npm ci && npm run build
-    staticPublishPath: ./build
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    staticPublishPath: ./out
     autoDeployTrigger: checksPass
     envVars:
-      - key: REACT_APP_API_URL
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_ADSENSE_CLIENT
+        sync: false
+      - key: NEXT_PUBLIC_ADSENSE_CMP_READY
+        value: "false"
+      - key: NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD
+        sync: false
+      - key: NEXT_PUBLIC_ADSENSE_SLOT_MARKET
+        sync: false
+      - key: NEXT_PUBLIC_OPERATOR_NAME
+        sync: false
+      - key: NEXT_PUBLIC_CONTACT_EMAIL
         sync: false
     headers:
       - path: /*
@@ -18,3 +32,6 @@ services:
       - path: /*
         name: Permissions-Policy
         value: camera=(), microphone=(), geolocation=()
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN

@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+"use client";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
+import AdSlot from "./components/AdSlot";
 import DashboardControls from "./components/dashboard/DashboardControls";
 import { ErrorState, LoadingDashboard } from "./components/dashboard/DashboardStates";
 import DerivativesMetrics from "./components/dashboard/DerivativesMetrics";
@@ -17,61 +20,108 @@ import { useForecastAnalytics } from "./hooks/useForecastAnalytics";
 import { useMarketCatalog } from "./hooks/useMarketCatalog";
 
 function initialTheme() {
+  if (typeof window === "undefined") return "dark";
   const saved = window.localStorage.getItem("cryptovision-theme");
   if (saved === "light" || saved === "dark") return saved;
   if (window.matchMedia?.("(prefers-color-scheme: light)").matches) return "light";
   return "dark";
 }
 
-function DashboardContent({ data, risk, selectedCoin, analytics, marketCatalog, onAnalyze }) {
+function DashboardContent({
+  data,
+  risk,
+  selectedCoin,
+  analytics,
+  marketCatalog,
+  onAnalyze,
+  view,
+}) {
+  const showForecast = ["dashboard", "forecast", "models"].includes(view);
+  const showForecastContext = ["dashboard", "forecast"].includes(view);
+  const showMarket = ["dashboard", "market"].includes(view);
+  const showNews = ["dashboard", "forecast", "news"].includes(view);
+
   return (
     <>
       <MarketMetrics market={data.market} />
-      <ForecastSummary selected={data.selected} generatedAt={data.generated_at} />
-      <DerivativesMetrics data={data.derivatives} />
+      {view === "dashboard" && <AdSlot placement="dashboard" />}
+      {showForecast && (
+        <ForecastSummary selected={data.selected} generatedAt={data.generated_at} />
+      )}
+      {showForecastContext && <DerivativesMetrics data={data.derivatives} />}
 
-      <div className="analysis-grid">
-        <PriceChart selected={data.selected} />
-        <RiskSignals forecast={data.selected.forecast} risk={risk} />
-      </div>
+      {showForecastContext && (
+        <div className="analysis-grid">
+          <PriceChart selected={data.selected} />
+          <RiskSignals forecast={data.selected.forecast} risk={risk} />
+        </div>
+      )}
 
-      <ForecastAnalytics
-        data={analytics.data}
-        loading={analytics.loading}
-        error={analytics.error}
-        onRetry={analytics.refresh}
-      />
+      {showForecast && (
+        <ForecastAnalytics
+          data={analytics.data}
+          loading={analytics.loading}
+          error={analytics.error}
+          onRetry={analytics.refresh}
+        />
+      )}
 
-      <MarketTable
-        catalog={marketCatalog.data}
-        fallbackRows={data.watchlist}
-        selectedCoin={selectedCoin}
-        loading={marketCatalog.loading}
-        refreshing={marketCatalog.refreshing}
-        error={marketCatalog.error}
-        onRetry={marketCatalog.refresh}
-        onAnalyze={onAnalyze}
-      />
-      <MoversPanel movers={data.movers} />
+      {showMarket && (
+        <MarketTable
+          catalog={marketCatalog.data}
+          fallbackRows={data.watchlist}
+          selectedCoin={selectedCoin}
+          loading={marketCatalog.loading}
+          refreshing={marketCatalog.refreshing}
+          error={marketCatalog.error}
+          onRetry={marketCatalog.refresh}
+          onAnalyze={onAnalyze}
+        />
+      )}
+      {view === "market" && <AdSlot placement="market" />}
+      {showMarket && <MoversPanel movers={data.movers} />}
 
-      <NewsPanel
-        articles={data.news || []}
-        sentiment={data.news_sentiment}
-        asset={data.selected}
-      />
+      {showNews && (
+        <NewsPanel
+          articles={data.news || []}
+          sentiment={data.news_sentiment}
+          asset={data.selected}
+        />
+      )}
     </>
   );
 }
 
-function App() {
-  const [theme, setTheme] = useState(initialTheme);
-  const [coin, setCoin] = useState("bitcoin");
+function App({
+  initialCoin = "bitcoin",
+  view = "dashboard",
+  pageEyebrow = "Kriptopiaci irányítópult",
+  pageTitle = "Piaci állapot és rövid távú modellnézet",
+  pageDescription = "Árfolyamok, kockázati jelek és visszamért előrejelzések egyetlen operatív nézetben.",
+  onCoinNavigate,
+  onOpenAnalysis,
+}) {
+  const [theme, setTheme] = useState("dark");
+  const themeReady = useRef(false);
+  const [coin, setCoin] = useState(initialCoin);
   const [horizon, setHorizon] = useState(7);
   const [risk, setRisk] = useState(5);
   const [pendingAnalysisCoin, setPendingAnalysisCoin] = useState(null);
   const { data, error, loading, refreshing, refresh } = useDashboardData(coin, horizon);
 
   useEffect(() => {
+    setCoin(initialCoin);
+  }, [initialCoin]);
+
+  useEffect(() => {
+    const preferredTheme = initialTheme();
+    themeReady.current = true;
+    document.documentElement.dataset.theme = preferredTheme;
+    setTheme(preferredTheme);
+  }, []);
+
+  useEffect(() => {
+    if (!themeReady.current) return;
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("cryptovision-theme", theme);
   }, [theme]);
@@ -82,14 +132,21 @@ function App() {
     return data.selected?.id === coin && forecastHorizon === horizon ? data : null;
   }, [coin, data, horizon]);
 
-  const analytics = useForecastAnalytics(coin, horizon, matchingData?.generated_at);
+  const needsAnalytics = ["dashboard", "forecast", "models"].includes(view);
+  const needsMarketCatalog = ["dashboard", "market"].includes(view);
+  const analytics = useForecastAnalytics(
+    coin,
+    horizon,
+    matchingData?.generated_at,
+    needsAnalytics
+  );
   const matchingAnalytics = useMemo(() => {
     if (!analytics.data) return null;
     return analytics.data.asset?.id === coin && analytics.data.horizon_days === horizon
       ? analytics.data
       : null;
   }, [analytics.data, coin, horizon]);
-  const marketCatalog = useMarketCatalog(Boolean(matchingData));
+  const marketCatalog = useMarketCatalog(Boolean(matchingData) && needsMarketCatalog);
 
   useEffect(() => {
     if (!pendingAnalysisCoin || matchingData?.selected?.id !== pendingAnalysisCoin) return;
@@ -98,9 +155,18 @@ function App() {
   }, [matchingData, pendingAnalysisCoin]);
 
   const openAnalysis = (coinId) => {
+    if (onOpenAnalysis) {
+      onOpenAnalysis(coinId);
+      return;
+    }
     setPendingAnalysisCoin(coinId);
     setCoin(coinId);
     window.history.replaceState(null, "", "#forecast");
+  };
+
+  const changeCoin = (coinId) => {
+    setCoin(coinId);
+    onCoinNavigate?.(coinId);
   };
 
   const refreshAll = () => {
@@ -113,13 +179,19 @@ function App() {
 
   return (
     <div className="application-shell">
-      <Sidebar online={online} loading={loading && !data} />
+      <Sidebar
+        online={online}
+        loading={loading && !data}
+        activeView={view}
+        coin={coin}
+      />
 
       <div className="workspace">
         <header className="topbar" id="overview">
           <div>
-            <span className="eyebrow">Kriptopiaci irányítópult</span>
-            <h1>Piaci állapot és rövid távú modellnézet</h1>
+            <span className="eyebrow">{pageEyebrow}</span>
+            <h1>{pageTitle}</h1>
+            <p className="topbar-description">{pageDescription}</p>
           </div>
           <div className="topbar-actions">
             <span className={`live-status ${online ? "online" : ""}`}>
@@ -141,7 +213,7 @@ function App() {
         <main className="dashboard-main">
           <DashboardControls
             coin={coin}
-            onCoinChange={setCoin}
+            onCoinChange={changeCoin}
             horizon={horizon}
             onHorizonChange={setHorizon}
             risk={risk}
@@ -167,14 +239,30 @@ function App() {
               analytics={{ ...analytics, data: matchingAnalytics }}
               marketCatalog={marketCatalog}
               onAnalyze={openAnalysis}
+              view={view}
             />
           )}
 
           <footer className="dashboard-footer">
-            <span>
-              CryptoVision · {matchingData?.selected?.forecast?.model || "Kalibrált előrejelző modell"}
-            </span>
-            <span>Kísérleti elemzés, nem pénzügyi tanács.</span>
+            <div>
+              <span>
+                CryptoVision · {matchingData?.selected?.forecast?.model || "Kalibrált előrejelző modell"}
+              </span>
+              <span>Kísérleti elemzés, nem pénzügyi tanács.</span>
+            </div>
+            <nav className="footer-links" aria-label="Jogi és módszertani oldalak">
+              <a href="/about">A projektről</a>
+              <a href="/methodology">Módszertan</a>
+              <a href="/privacy">Adatvédelem</a>
+              <a href="/cookies">Cookie-k</a>
+              <a href="/terms">Feltételek</a>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("cryptovision:privacy"))}
+              >
+                Adatvédelmi beállítások
+              </button>
+            </nav>
           </footer>
         </main>
       </div>
