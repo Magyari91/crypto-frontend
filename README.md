@@ -1,57 +1,85 @@
 # CryptoVision frontend
 
-React dashboard a CryptoVision backendhez. A böngésző a piaci összegzés, a technikai
-jelzés, a piaclista és a hírek mellett a walk-forward visszamérést és az élő
-előrejelzési naplót is megjeleníti.
+Statikusan exportált Next.js 16 dashboard a CryptoVision FastAPI backendhez. A
+felület a széles, legfeljebb 200 eszközös piaclista mellett a kijelölt top 10
+kriptovalutához készít részletes, visszamért előrejelzést.
 
-A v5 előrejelzési nézet piaci rezsimet, időtávhoz választott specialistamodellt,
-tanító- és holdoutmintát, modell-előnyt, aktívjel-lefedettséget és 80%-os
-empirikus ársávot mutat. A teljesítménynézet az új modellt közvetlenül a v2
-technikai modellel is összeveti. Bizonyított előny hiányában a specialista
-kikapcsol, a rendszer pedig tartózkodhat az irányjelzéstől.
+## Architektúra
 
-A fő forecast-sáv külön eseményvalószínűséget jelenít meg, például
-`P(7 napos hozam >= +1%)`. Az aktív, kalibrált modell és a historikus alapesély
-egyértelműen elkülönül; elutasított modellnél a jelöltérték csak másodlagos
-információ. A kockázati nézet Brier-előnyt, ROC AUC-t, stabilitási kaput és
-fontos jellemzőket, valamint az adateloszlás eltolódását mutatja. A
-teljesítménynézet a publikus becsléstől külön auditálja a tartalékban lévő
-challenger Brier score-, kalibrációs hiba- és ROC AUC-értékét.
+- Next.js App Router, React 19 és fokozatos TypeScript-migráció
+- statikus export a Render Static Site számára
+- külön FastAPI backend a piaci és modelladatokhoz
+- valódi, indexelhető útvonalak és érménként generált metaadatok
+- hozzájárulás után aktiválható analitika- és hirdetési réteg
 
-A főoldal külön futures mérősoron jeleníti meg a Binance USDⓈ-M funding rate,
-open interest, globális long/short és taker vételi/eladási adatokat. Hiányzó
-futures-forrás esetén a teljes dashboard továbbra is működik, és az állapotot
-egyértelműen jelzi. A költséges első walk-forward audit háttérben fut; a kliens
-automatikusan újrakéri az eredményt, ezért a többi dashboard-rész nem vár rá.
+Fő útvonalak:
 
-Az 1 és 7 napos teljesítménynézetben külön Modelllabor indítható. Ez 6480 órás
-OHLCV-adaton ellenőrzi az irányjelöltet és a 80%-os mozgási sáv kvantilismodelljét,
-majd megmutatja a holdout-előnyt, lefedettséget és a több időblokkon mért
-stabilitást. A labor eredménye nem írja felül automatikusan az éles előrejelzést.
+- `/` – teljes dashboard
+- `/market` – 100–200 eszközös piaci szkenner
+- `/forecast/[coin]` – top 10 előrejelzési oldal
+- `/models` – walk-forward teljesítmény és modellnapló
+- `/news` – hírek és sentiment
+- `/methodology` – adat- és modellmódszertan
+- `/privacy`, `/cookies`, `/terms` – jogi tájékoztatók
 
 ## Helyi indítás
 
-1. Másold a `.env.example` tartalmát egy `.env` fájlba.
+1. Másold a `.env.example` tartalmát `.env.local` néven.
 2. Indítsd el a backendet a `http://localhost:8000` címen.
 3. Telepítsd és indítsd a frontendet:
 
 ```powershell
-npm install
-npm start
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-A dashboard címe: `http://localhost:3000`
+A dashboard címe: `http://localhost:3000`.
 
-## Éles környezet
+## Környezeti változók
 
-Állítsd be a `REACT_APP_API_URL` változót a telepített backend címére. Az alkalmazás
-alapértelmezett éles címe jelenleg `https://crypto-backend-pv99.onrender.com`.
+- `NEXT_PUBLIC_API_URL`: a FastAPI backend publikus címe
+- `NEXT_PUBLIC_SITE_URL`: a frontend kanonikus, protokollal együtt megadott címe
+- `NEXT_PUBLIC_OPERATOR_NAME`: a jogi oldalakon megjelenő üzemeltető
+- `NEXT_PUBLIC_CONTACT_EMAIL`: az üzemeltető nyilvános kapcsolati címe
+- `NEXT_PUBLIC_ADSENSE_CLIENT`: a jóváhagyott `ca-pub-...` azonosító
+- `NEXT_PUBLIC_ADSENSE_CMP_READY`: csak hitelesített CMP beállítása után legyen `true`
+- `NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD`: dashboard hirdetési egység azonosítója
+- `NEXT_PUBLIC_ADSENSE_SLOT_MARKET`: piaci oldal hirdetési egység azonosítója
+
+Az AdSense-kód csak hirdetési hozzájárulás, kiadói azonosító és slotazonosító
+mellett töltődik be. A build az `ads.txt` tartalmát automatikusan generálja a
+kiadói azonosítóból. Az EGT-ben történő éles aktiválás előtt az AdSense
+`Privacy & messaging` felületén Google által hitelesített, IAB TCF-kompatibilis
+CMP-t is be kell állítani. A beépített kategóriaválasztó önmagában nem helyettesíti
+ezt a tanúsítást. A hirdetési script csak `NEXT_PUBLIC_ADSENSE_CMP_READY=true`
+értéknél válik betölthetővé.
+
+Az üzemeltetői adatokat és a ténylegesen bekapcsolt adatfeldolgozók listáját az
+éles kereskedelmi indulás előtt jogi szakértővel ellenőrizni kell.
+
+## Render telepítés
+
+A repository `render.yaml` fájlja az alábbi beállításokat tartalmazza:
+
+```text
+Build command: pnpm install --frozen-lockfile && pnpm run build
+Publish directory: out
+```
+
+Meglévő Render szolgáltatásnál ezeket a Settings oldalon is ellenőrizni kell,
+mert a már létrehozott szolgáltatás nem minden Blueprint-változást vesz át
+automatikusan. Saját domain beállításakor a `NEXT_PUBLIC_SITE_URL` értékét is az
+új címre kell cserélni, majd új buildet kell indítani.
 
 ## Ellenőrzés
 
 ```powershell
-npm test -- --watchAll=false
-npm run build
+pnpm test
+pnpm build
 ```
 
-A megjelenített előrejelzés kísérleti technikai jelzés, nem pénzügyi tanács.
+A build a `robots.txt`, `sitemap.xml`, jogi oldalak és mind a tíz statikus
+előrejelzési URL elkészítését is ellenőrzi.
+
+A megjelenített előrejelzés kísérleti technikai elemzés, nem személyre szabott
+pénzügyi tanács.

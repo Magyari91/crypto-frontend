@@ -16,7 +16,7 @@ function waitForRetry(milliseconds, signal) {
   });
 }
 
-export function useForecastAnalytics(coin, horizon, dashboardVersion) {
+export function useForecastAnalytics(coin, horizon, dashboardVersion, enabled = true) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ export function useForecastAnalytics(coin, horizon, dashboardVersion) {
   }, []);
 
   useEffect(() => {
-    if (!dashboardVersion) return undefined;
+    if (!enabled || !dashboardVersion) return undefined;
 
     const controller = new AbortController();
     setLoading(true);
@@ -60,7 +60,7 @@ export function useForecastAnalytics(coin, horizon, dashboardVersion) {
       });
 
     return () => controller.abort();
-  }, [coin, dashboardVersion, horizon, requestVersion]);
+  }, [coin, dashboardVersion, enabled, horizon, requestVersion]);
 
   return { data, error, loading, refresh };
 }

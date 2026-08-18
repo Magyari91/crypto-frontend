@@ -10,22 +10,26 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 
-const navigation = [
-  { href: "#overview", label: "Áttekintés", icon: FiGrid },
-  { href: "#forecast", label: "Előrejelzés", icon: FiTrendingUp },
-  { href: "#performance", label: "Teljesítmény", icon: FiBarChart2 },
-  { href: "#signals", label: "Jelzések", icon: FiActivity },
-  { href: "#risk", label: "Kockázat", icon: FiShield },
-  { href: "#market", label: "Piaclista", icon: FiList },
-  { href: "#news", label: "Hírek", icon: FiFileText },
-];
+function createNavigation(coin) {
+  const forecastPath = `/forecast/${coin || "bitcoin"}`;
+  return [
+    { href: "/", label: "Áttekintés", icon: FiGrid, view: "dashboard" },
+    { href: forecastPath, label: "Előrejelzés", icon: FiTrendingUp, view: "forecast" },
+    { href: "/models", label: "Teljesítmény", icon: FiBarChart2, view: "models" },
+    { href: `${forecastPath}#signals`, label: "Jelzések", icon: FiActivity, view: "signals" },
+    { href: `${forecastPath}#risk`, label: "Kockázat", icon: FiShield, view: "risk" },
+    { href: "/market", label: "Piaclista", icon: FiList, view: "market" },
+    { href: "/news", label: "Hírek", icon: FiFileText, view: "news" },
+  ];
+}
 
-function Sidebar({ online, loading }) {
+function Sidebar({ online, loading, activeView = "dashboard", coin = "bitcoin" }) {
   const statusLabel = loading ? "Kapcsolódás" : online ? "API online" : "API offline";
+  const navigation = createNavigation(coin);
 
   return (
     <aside className="sidebar" aria-label="Fő navigáció">
-      <a className="brand" href="#overview" aria-label="CryptoVision kezdőlap">
+      <a className="brand" href="/" aria-label="CryptoVision kezdőlap">
         <span className="brand-mark">CV</span>
         <span>
           <strong>CryptoVision</strong>
@@ -34,9 +38,9 @@ function Sidebar({ online, loading }) {
       </a>
 
       <nav className="sidebar-nav">
-        {navigation.map(({ href, label, icon: Icon }, index) => (
+        {navigation.map(({ href, label, icon: Icon, view }) => (
           <a
-            className={index === 0 ? "active" : ""}
+            className={activeView === view ? "active" : ""}
             href={href}
             key={href}
             aria-label={label}

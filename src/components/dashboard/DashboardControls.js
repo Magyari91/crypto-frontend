@@ -1,18 +1,6 @@
 import React from "react";
 import { FiRefreshCw, FiSliders } from "react-icons/fi";
-
-const fallbackCoins = [
-  { id: "bitcoin", symbol: "BTC", name: "Bitcoin" },
-  { id: "ethereum", symbol: "ETH", name: "Ethereum" },
-  { id: "binancecoin", symbol: "BNB", name: "BNB" },
-  { id: "ripple", symbol: "XRP", name: "XRP" },
-  { id: "solana", symbol: "SOL", name: "Solana" },
-  { id: "tron", symbol: "TRX", name: "TRON" },
-  { id: "hyperliquid", symbol: "HYPE", name: "Hyperliquid" },
-  { id: "dogecoin", symbol: "DOGE", name: "Dogecoin" },
-  { id: "zcash", symbol: "ZEC", name: "Zcash" },
-  { id: "cardano", symbol: "ADA", name: "Cardano" },
-];
+import { ANALYZED_COINS } from "../../config/coins";
 
 function riskLabel(value) {
   if (value <= 3) return "Óvatos";
@@ -31,7 +19,7 @@ function DashboardControls({
   refreshing,
   onRefresh,
 }) {
-  const coins = supportedCoins?.length ? supportedCoins : fallbackCoins;
+  const coins = supportedCoins?.length ? supportedCoins : ANALYZED_COINS;
 
   return (
     <section className="control-bar" aria-label="Dashboard beállítások">
