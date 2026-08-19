@@ -64,6 +64,19 @@ export async function fetchForecastAnalytics({ coin, horizon, signal }) {
   return response.json();
 }
 
+export async function fetchDataHealth({ signal }) {
+  const response = await fetch(`${API_BASE_URL}/api/v1/forecast/data-health`, {
+    signal,
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  return response.json();
+}
+
 export async function fetchModelLab({ coin, horizon, signal }) {
   const query = new URLSearchParams({
     coin,

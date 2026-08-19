@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 import AdSlot from "./components/AdSlot";
 import DashboardControls from "./components/dashboard/DashboardControls";
+import DataHealthPanel from "./components/dashboard/DataHealthPanel";
 import { ErrorState, LoadingDashboard } from "./components/dashboard/DashboardStates";
 import DerivativesMetrics from "./components/dashboard/DerivativesMetrics";
 import ForecastSummary from "./components/dashboard/ForecastSummary";
@@ -16,6 +17,7 @@ import PriceChart from "./components/dashboard/PriceChart";
 import RiskSignals from "./components/dashboard/RiskSignals";
 import Sidebar from "./components/dashboard/Sidebar";
 import { useDashboardData } from "./hooks/useDashboardData";
+import { useDataHealth } from "./hooks/useDataHealth";
 import { useForecastAnalytics } from "./hooks/useForecastAnalytics";
 import { useMarketCatalog } from "./hooks/useMarketCatalog";
 
@@ -32,6 +34,7 @@ function DashboardContent({
   risk,
   selectedCoin,
   analytics,
+  dataHealth,
   marketCatalog,
   onAnalyze,
   view,
@@ -48,6 +51,7 @@ function DashboardContent({
       {showForecast && (
         <ForecastSummary selected={data.selected} generatedAt={data.generated_at} />
       )}
+      {view === "models" && <DataHealthPanel {...dataHealth} onRetry={dataHealth.refresh} />}
       {showForecastContext && <DerivativesMetrics data={data.derivatives} />}
 
       {showForecastContext && (
@@ -134,6 +138,7 @@ function App({
 
   const needsAnalytics = ["dashboard", "forecast", "models"].includes(view);
   const needsMarketCatalog = ["dashboard", "market"].includes(view);
+  const dataHealth = useDataHealth(view === "models");
   const analytics = useForecastAnalytics(
     coin,
     horizon,
@@ -172,6 +177,7 @@ function App({
   const refreshAll = () => {
     refresh();
     marketCatalog.refresh();
+    dataHealth.refresh();
   };
 
   const online = Boolean(data) && !error;
@@ -219,7 +225,7 @@ function App({
             risk={risk}
             onRiskChange={setRisk}
             supportedCoins={data?.supported_coins}
-            refreshing={refreshing || marketCatalog.refreshing}
+            refreshing={refreshing || marketCatalog.refreshing || dataHealth.refreshing}
             onRefresh={refreshAll}
           />
 
@@ -237,6 +243,7 @@ function App({
               risk={risk}
               selectedCoin={coin}
               analytics={{ ...analytics, data: matchingAnalytics }}
+              dataHealth={dataHealth}
               marketCatalog={marketCatalog}
               onAnalyze={openAnalysis}
               view={view}
