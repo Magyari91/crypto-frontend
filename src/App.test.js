@@ -14,3 +14,14 @@ test("renders the dashboard controls while market data is loading", () => {
   expect(screen.getByRole("button", { name: "ADA" })).toBeInTheDocument();
   expect(screen.getByLabelText(/saját kockázati profil/i)).toBeInTheDocument();
 });
+
+test("renders data collection health while market data is still loading", () => {
+  global.fetch = jest.fn(() => new Promise(() => {}));
+
+  render(<App view="models" />);
+
+  expect(
+    screen.getByRole("heading", { name: "Adatgyűjtés állapota" })
+  ).toBeInTheDocument();
+  expect(screen.getByText("Az adatút állapotának betöltése...")).toBeInTheDocument();
+});

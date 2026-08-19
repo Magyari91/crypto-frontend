@@ -34,7 +34,6 @@ function DashboardContent({
   risk,
   selectedCoin,
   analytics,
-  dataHealth,
   marketCatalog,
   onAnalyze,
   view,
@@ -51,7 +50,6 @@ function DashboardContent({
       {showForecast && (
         <ForecastSummary selected={data.selected} generatedAt={data.generated_at} />
       )}
-      {view === "models" && <DataHealthPanel {...dataHealth} onRetry={dataHealth.refresh} />}
       {showForecastContext && <DerivativesMetrics data={data.derivatives} />}
 
       {showForecastContext && (
@@ -229,6 +227,10 @@ function App({
             onRefresh={refreshAll}
           />
 
+          {view === "models" && (
+            <DataHealthPanel {...dataHealth} onRetry={dataHealth.refresh} />
+          )}
+
           {error && data && (
             <div className="data-warning" role="status">
               A frissítés nem sikerült, ezért az utolsó elérhető adatokat látod. {error}
@@ -243,7 +245,6 @@ function App({
               risk={risk}
               selectedCoin={coin}
               analytics={{ ...analytics, data: matchingAnalytics }}
-              dataHealth={dataHealth}
               marketCatalog={marketCatalog}
               onAnalyze={openAnalysis}
               view={view}
