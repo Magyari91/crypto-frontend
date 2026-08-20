@@ -9,27 +9,29 @@ import {
   FiShield,
   FiTrendingUp,
 } from "react-icons/fi";
+import { useLanguage } from "../../i18n/LanguageContext";
 
-function createNavigation(coin) {
+function createNavigation(coin, copy) {
   const forecastPath = `/forecast/${coin || "bitcoin"}`;
   return [
-    { href: "/", label: "Áttekintés", icon: FiGrid, view: "dashboard" },
-    { href: forecastPath, label: "Előrejelzés", icon: FiTrendingUp, view: "forecast" },
-    { href: "/models", label: "Teljesítmény", icon: FiBarChart2, view: "models" },
-    { href: `${forecastPath}#signals`, label: "Jelzések", icon: FiActivity, view: "signals" },
-    { href: `${forecastPath}#risk`, label: "Kockázat", icon: FiShield, view: "risk" },
-    { href: "/market", label: "Piaclista", icon: FiList, view: "market" },
-    { href: "/news", label: "Hírek", icon: FiFileText, view: "news" },
+    { href: "/", label: copy.nav.overview, icon: FiGrid, view: "dashboard" },
+    { href: forecastPath, label: copy.nav.forecast, icon: FiTrendingUp, view: "forecast" },
+    { href: "/models", label: copy.nav.performance, icon: FiBarChart2, view: "models" },
+    { href: `${forecastPath}#signals`, label: copy.nav.signals, icon: FiActivity, view: "signals" },
+    { href: `${forecastPath}#risk`, label: copy.nav.risk, icon: FiShield, view: "risk" },
+    { href: "/market", label: copy.nav.market, icon: FiList, view: "market" },
+    { href: "/news", label: copy.nav.news, icon: FiFileText, view: "news" },
   ];
 }
 
 function Sidebar({ online, loading, activeView = "dashboard", coin = "bitcoin" }) {
-  const statusLabel = loading ? "Kapcsolódás" : online ? "API online" : "API offline";
-  const navigation = createNavigation(coin);
+  const { copy } = useLanguage();
+  const statusLabel = loading ? copy.nav.connecting : online ? copy.nav.apiOnline : copy.nav.apiOffline;
+  const navigation = createNavigation(coin, copy);
 
   return (
-    <aside className="sidebar" aria-label="Fő navigáció">
-      <a className="brand" href="/" aria-label="CryptoVision kezdőlap">
+    <aside className="sidebar" aria-label={copy.nav.main}>
+      <a className="brand" href="/" aria-label={copy.nav.home}>
         <span className="brand-mark">CV</span>
         <span>
           <strong>CryptoVision</strong>
@@ -55,12 +57,12 @@ function Sidebar({ online, loading, activeView = "dashboard", coin = "bitcoin" }
       <div className={`api-status ${online ? "online" : ""}`}>
         <FiRadio aria-hidden="true" />
         <span>
-          <small>Rendszerállapot</small>
+          <small>{copy.nav.systemStatus}</small>
           <strong>{statusLabel}</strong>
         </span>
       </div>
 
-      <p className="sidebar-note">Kísérleti piaci elemzés. Nem pénzügyi tanács.</p>
+      <p className="sidebar-note">{copy.nav.note}</p>
     </aside>
   );
 }

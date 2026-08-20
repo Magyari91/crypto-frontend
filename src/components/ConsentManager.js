@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const STORAGE_KEY = "cryptovision-consent-v1";
 const ConsentContext = createContext({ analytics: false, advertising: false });
@@ -24,33 +26,34 @@ export function useConsent() {
 }
 
 function ConsentPanel({ existingConsent, onSave, onClose }) {
+  const { copy } = useLanguage();
   const [analytics, setAnalytics] = useState(existingConsent?.analytics === true);
   const [advertising, setAdvertising] = useState(existingConsent?.advertising === true);
 
   return (
     <section className="consent-panel" role="dialog" aria-labelledby="consent-title">
       <div className="consent-copy">
-        <span className="eyebrow">Adatvédelmi beállítások</span>
-        <h2 id="consent-title">Te döntöd el, mi tölthető be</h2>
-        <p>
-          A szükséges helyi tárolás működteti a témát és a beállításokat. A mérési és
-          hirdetési szolgáltatások csak a hozzájárulásod után indulnak el.
-        </p>
-        <a href="/cookies">Részletes cookie-tájékoztató</a>
+        <div className="consent-copy-heading">
+          <span className="eyebrow">{copy.consent.eyebrow}</span>
+          <LanguageSwitcher compact />
+        </div>
+        <h2 id="consent-title">{copy.consent.title}</h2>
+        <p>{copy.consent.description}</p>
+        <a href="/cookies">{copy.consent.details}</a>
       </div>
 
       <div className="consent-options">
         <label className="consent-option locked">
           <span>
-            <strong>Szükséges</strong>
-            <small>Alapműködés és választott beállítások</small>
+            <strong>{copy.consent.necessary}</strong>
+            <small>{copy.consent.necessaryDetail}</small>
           </span>
           <input type="checkbox" checked disabled />
         </label>
         <label className="consent-option">
           <span>
-            <strong>Mérés</strong>
-            <small>Névtelen használati és teljesítménymérés</small>
+            <strong>{copy.consent.analytics}</strong>
+            <small>{copy.consent.analyticsDetail}</small>
           </span>
           <input
             type="checkbox"
@@ -60,8 +63,8 @@ function ConsentPanel({ existingConsent, onSave, onClose }) {
         </label>
         <label className="consent-option">
           <span>
-            <strong>Hirdetések</strong>
-            <small>Hirdetési szolgáltatások és kapcsolódó tárolás</small>
+            <strong>{copy.consent.advertising}</strong>
+            <small>{copy.consent.advertisingDetail}</small>
           </span>
           <input
             type="checkbox"
@@ -73,18 +76,18 @@ function ConsentPanel({ existingConsent, onSave, onClose }) {
 
       <div className="consent-actions">
         <button type="button" className="secondary-button" onClick={() => onSave(false, false)}>
-          Mind elutasítása
+          {copy.consent.rejectAll}
         </button>
         {existingConsent && (
           <button type="button" className="secondary-button" onClick={onClose}>
-            Mégse
+            {copy.consent.cancel}
           </button>
         )}
         <button type="button" className="primary-button" onClick={() => onSave(analytics, advertising)}>
-          Kiválasztottak mentése
+          {copy.consent.saveSelected}
         </button>
         <button type="button" className="primary-button" onClick={() => onSave(true, true)}>
-          Mind elfogadása
+          {copy.consent.acceptAll}
         </button>
       </div>
     </section>

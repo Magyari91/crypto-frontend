@@ -9,12 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function MarketPage() {
-  return (
-    <DashboardClient
-      view="market"
-      pageEyebrow="Piaci szkenner"
-      pageTitle="Kriptovaluta árfolyamok"
-      pageDescription="Szűrhető piaclista, piaci szélesség és napi szélsőértékek; részletes modell a top 10 eszközhöz."
-    />
-  );
+  return <DashboardClient view="market" />;
 }

@@ -49,8 +49,8 @@ test("renders article and aggregate sentiment signals", () => {
   expect(screen.getByText("BTC hírhangulat")).toBeInTheDocument();
   expect(screen.getByText("68%")).toBeInTheDocument();
   expect(screen.getByText("0% modell súly")).toBeInTheDocument();
-  expect(screen.getByText("+0.62")).toBeInTheDocument();
-  expect(screen.getByText("-0.31")).toBeInTheDocument();
+  expect(screen.getByText("+0,62")).toBeInTheDocument();
+  expect(screen.getByText("-0,31")).toBeInTheDocument();
   expect(screen.getByText("Bitcoin market update")).toBeInTheDocument();
   expect(screen.getByText("Ethereum network update")).toBeInTheDocument();
   expect(screen.getAllByRole("link")).toHaveLength(2);

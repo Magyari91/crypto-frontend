@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchForecastAnalytics } from "../services/api";
+import { useLanguage } from "../i18n/LanguageContext";
 
 function waitForRetry(milliseconds, signal) {
   return new Promise((resolve, reject) => {
@@ -17,6 +18,7 @@ function waitForRetry(milliseconds, signal) {
 }
 
 export function useForecastAnalytics(coin, horizon, dashboardVersion, enabled = true) {
+  const { copy } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,6 +41,7 @@ export function useForecastAnalytics(coin, horizon, dashboardVersion, enabled = 
           coin,
           horizon,
           signal: controller.signal,
+          errorMessages: copy.states,
         });
         if (payload.status !== "pending") {
           setData(payload);
@@ -52,7 +55,7 @@ export function useForecastAnalytics(coin, horizon, dashboardVersion, enabled = 
     loadAnalytics()
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
-          setError(requestError.message || "A modell visszamérése most nem érhető el.");
+          setError(requestError.message || copy.states.forecastAnalyticsError);
         }
       })
       .finally(() => {

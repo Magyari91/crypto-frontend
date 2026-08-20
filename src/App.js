@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 import AdSlot from "./components/AdSlot";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import DashboardControls from "./components/dashboard/DashboardControls";
 import DataHealthPanel from "./components/dashboard/DataHealthPanel";
 import { ErrorState, LoadingDashboard } from "./components/dashboard/DashboardStates";
@@ -20,6 +21,7 @@ import { useDashboardData } from "./hooks/useDashboardData";
 import { useDataHealth } from "./hooks/useDataHealth";
 import { useForecastAnalytics } from "./hooks/useForecastAnalytics";
 import { useMarketCatalog } from "./hooks/useMarketCatalog";
+import { useLanguage } from "./i18n/LanguageContext";
 
 function initialTheme() {
   if (typeof window === "undefined") return "dark";
@@ -97,12 +99,17 @@ function DashboardContent({
 function App({
   initialCoin = "bitcoin",
   view = "dashboard",
-  pageEyebrow = "Kriptopiaci irányítópult",
-  pageTitle = "Piaci állapot és rövid távú modellnézet",
-  pageDescription = "Árfolyamok, kockázati jelek és visszamért előrejelzések egyetlen operatív nézetben.",
+  pageEyebrow,
+  pageTitle,
+  pageDescription,
   onCoinNavigate,
   onOpenAnalysis,
 }) {
+  const { copy } = useLanguage();
+  const defaultPageCopy = copy.pages[view] || copy.pages.dashboard;
+  const resolvedPageEyebrow = pageEyebrow || defaultPageCopy.eyebrow;
+  const resolvedPageTitle = pageTitle || defaultPageCopy.title;
+  const resolvedPageDescription = pageDescription || defaultPageCopy.description;
   const [theme, setTheme] = useState("dark");
   const themeReady = useRef(false);
   const [coin, setCoin] = useState(initialCoin);
@@ -193,21 +200,22 @@ function App({
       <div className="workspace">
         <header className="topbar" id="overview">
           <div>
-            <span className="eyebrow">{pageEyebrow}</span>
-            <h1>{pageTitle}</h1>
-            <p className="topbar-description">{pageDescription}</p>
+            <span className="eyebrow">{resolvedPageEyebrow}</span>
+            <h1>{resolvedPageTitle}</h1>
+            <p className="topbar-description">{resolvedPageDescription}</p>
           </div>
           <div className="topbar-actions">
             <span className={`live-status ${online ? "online" : ""}`}>
               <i />
-              {online ? "Élő piaci adatok" : "Kapcsolat ellenőrzése"}
+              {online ? copy.app.liveData : copy.app.checkingConnection}
             </span>
+            <LanguageSwitcher />
             <button
               type="button"
               className="icon-button"
               onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
-              aria-label={theme === "dark" ? "Világos téma" : "Sötét téma"}
-              title={theme === "dark" ? "Világos téma" : "Sötét téma"}
+              aria-label={theme === "dark" ? copy.app.lightTheme : copy.app.darkTheme}
+              title={theme === "dark" ? copy.app.lightTheme : copy.app.darkTheme}
             >
               {theme === "dark" ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
             </button>
@@ -233,7 +241,7 @@ function App({
 
           {error && data && (
             <div className="data-warning" role="status">
-              A frissítés nem sikerült, ezért az utolsó elérhető adatokat látod. {error}
+              {copy.app.refreshWarning} {error}
             </div>
           )}
 
@@ -254,21 +262,21 @@ function App({
           <footer className="dashboard-footer">
             <div>
               <span>
-                CryptoVision · {matchingData?.selected?.forecast?.model || "Kalibrált előrejelző modell"}
+                CryptoVision · {matchingData?.selected?.forecast?.model || copy.app.calibratedModel}
               </span>
-              <span>Kísérleti elemzés, nem pénzügyi tanács.</span>
+              <span>{copy.app.disclaimer}</span>
             </div>
-            <nav className="footer-links" aria-label="Jogi és módszertani oldalak">
-              <a href="/about">A projektről</a>
-              <a href="/methodology">Módszertan</a>
-              <a href="/privacy">Adatvédelem</a>
-              <a href="/cookies">Cookie-k</a>
-              <a href="/terms">Feltételek</a>
+            <nav className="footer-links" aria-label={copy.app.legalNavigation}>
+              <a href="/about">{copy.app.about}</a>
+              <a href="/methodology">{copy.app.methodology}</a>
+              <a href="/privacy">{copy.app.privacy}</a>
+              <a href="/cookies">{copy.app.cookies}</a>
+              <a href="/terms">{copy.app.terms}</a>
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new Event("cryptovision:privacy"))}
               >
-                Adatvédelmi beállítások
+                {copy.app.privacySettings}
               </button>
             </nav>
           </footer>

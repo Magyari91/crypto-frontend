@@ -1,55 +1,61 @@
 import React from "react";
 import { FiActivity, FiBarChart2, FiRepeat, FiUsers } from "react-icons/fi";
 import { formatCompactCurrency, formatPercent } from "../../utils/formatters";
+import { useLanguage } from "../../i18n/LanguageContext";
 
-function ratio(value) {
+function ratio(value, locale) {
   if (value == null || value === "") return "-";
   const number = Number(value);
-  return Number.isFinite(number) ? `${number.toFixed(2).replace(".", ",")}×` : "-";
+  return Number.isFinite(number)
+    ? `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number)}×`
+    : "-";
 }
 
-function formatFundingPercent(value) {
+function formatFundingPercent(value, locale) {
   const number = Number(value);
-  return Number.isFinite(number) ? `${number.toFixed(4).replace(".", ",")}%` : "-";
+  return Number.isFinite(number)
+    ? `${new Intl.NumberFormat(locale, { minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(number)}%`
+    : "-";
 }
 
 function DerivativesMetrics({ data }) {
+  const { copy, locale } = useLanguage();
   const available = Boolean(data?.available);
   const metrics = [
     {
-      label: "Funding rate",
-      value: available ? formatFundingPercent(data.funding_rate_pct) : "-",
+      label: copy.derivatives.fundingRate,
+      value: available ? formatFundingPercent(data.funding_rate_pct, locale) : "-",
       detail:
         data?.funding_7d_avg_pct == null
-          ? "Nincs 7 napos átlag"
-          : `7 napos átlag: ${formatFundingPercent(data.funding_7d_avg_pct)}`,
+          ? copy.derivatives.no7dAverage
+          : `${copy.derivatives.average7d}: ${formatFundingPercent(data.funding_7d_avg_pct, locale)}`,
       icon: FiRepeat,
     },
     {
-      label: "Nyitott kötésállomány",
+      label: copy.derivatives.openInterest,
       value: data?.open_interest_usd == null ? "-" : formatCompactCurrency(data.open_interest_usd),
       detail:
         data?.open_interest_change_7d_pct == null
-          ? "30 napos publikus ablak"
-          : `7 nap: ${formatPercent(data.open_interest_change_7d_pct, true)}`,
+          ? copy.derivatives.publicWindow30d
+          : `${copy.derivatives.days7}: ${formatPercent(data.open_interest_change_7d_pct, true)}`,
       icon: FiBarChart2,
     },
     {
-      label: "Long / short számlák",
-      value: ratio(data?.long_short_ratio),
+      label: copy.derivatives.longShort,
+      value: ratio(data?.long_short_ratio, locale),
       detail:
         data?.long_account_pct == null
-          ? "Nincs friss arány"
-          : `Long arány: ${formatPercent(data.long_account_pct)}`,
+          ? copy.derivatives.noRatio
+          : `${copy.derivatives.longShare}: ${formatPercent(data.long_account_pct)}`,
       icon: FiUsers,
     },
     {
-      label: "Taker vétel / eladás",
-      value: ratio(data?.taker_buy_sell_ratio),
+      label: copy.derivatives.taker,
+      value: ratio(data?.taker_buy_sell_ratio, locale),
       detail:
         data?.taker_buy_share_pct == null
-          ? "Nincs friss order-flow adat"
-          : `Vételi rész: ${formatPercent(data.taker_buy_share_pct)}`,
+          ? copy.derivatives.noOrderFlow
+          : `${copy.derivatives.buyShare}: ${formatPercent(data.taker_buy_share_pct)}`,
       icon: FiActivity,
     },
   ];
@@ -59,9 +65,9 @@ function DerivativesMetrics({ data }) {
       <header className="panel-heading">
         <div>
           <span className="eyebrow">Binance USDⓈ-M futures</span>
-          <h2 id="derivatives-title">Származtatott piaci kontextus</h2>
+          <h2 id="derivatives-title">{copy.derivatives.title}</h2>
         </div>
-        <small>{available ? `${data.funding_history_days || 0} nap funding-előzmény` : "Átmenetileg nincs adat"}</small>
+        <small>{available ? copy.derivatives.fundingHistory(data.funding_history_days || 0) : copy.derivatives.unavailable}</small>
       </header>
       <div className="derivatives-metrics">
         {metrics.map(({ label, value, detail, icon: Icon }) => (

@@ -43,13 +43,5 @@ export default async function ForecastPage({
   const coin = findAnalyzedCoin(coinId);
   if (!coin) notFound();
 
-  return (
-    <DashboardClient
-      initialCoin={coin.id}
-      view="forecast"
-      pageEyebrow={`${coin.symbol} modellnézet`}
-      pageTitle={`${coin.name} árfolyam-előrejelzés`}
-      pageDescription={`Valószínűségi forgatókönyvek, ársávok, hírsentiment és walk-forward teljesítmény ${coin.symbol} adatokon.`}
-    />
-  );
+  return <DashboardClient initialCoin={coin.id} view="forecast" />;
 }

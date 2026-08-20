@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CONTACT_EMAIL, OPERATOR_NAME } from "../../src/config/site";
+import LanguageSwitcher from "../../src/components/LanguageSwitcher";
+import { useLanguage } from "../../src/i18n/LanguageContext";
 
 type EditorialShellProps = {
   eyebrow: string;
@@ -10,22 +14,26 @@ type EditorialShellProps = {
 };
 
 export default function EditorialShell({ eyebrow, title, lead, children }: EditorialShellProps) {
+  const { copy } = useLanguage();
   return (
     <div className="editorial-shell">
       <header className="editorial-header">
-        <Link className="brand" href="/" aria-label="CryptoVision kezdőlap">
+        <Link className="brand" href="/" aria-label={copy.nav.home}>
           <span className="brand-mark">CV</span>
           <span>
             <strong>CryptoVision</strong>
             <small>Forecast desk</small>
           </span>
         </Link>
-        <nav aria-label="Oldal navigáció">
-          <Link href="/">Dashboard</Link>
-          <Link href="/market">Piac</Link>
-          <Link href="/forecast/bitcoin">Előrejelzés</Link>
-          <Link href="/methodology">Módszertan</Link>
-        </nav>
+        <div className="editorial-header-actions">
+          <nav aria-label={copy.editorial.navigation}>
+            <Link href="/">{copy.editorial.dashboard}</Link>
+            <Link href="/market">{copy.editorial.market}</Link>
+            <Link href="/forecast/bitcoin">{copy.editorial.forecast}</Link>
+            <Link href="/methodology">{copy.editorial.methodology}</Link>
+          </nav>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <main className="editorial-main">
@@ -40,10 +48,10 @@ export default function EditorialShell({ eyebrow, title, lead, children }: Edito
       <footer className="editorial-footer">
         <span>{OPERATOR_NAME}</span>
         {CONTACT_EMAIL && <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>}
-        <Link href="/about">A projektről</Link>
-        <Link href="/privacy">Adatvédelem</Link>
-        <Link href="/cookies">Cookie-k</Link>
-        <Link href="/terms">Feltételek</Link>
+        <Link href="/about">{copy.editorial.about}</Link>
+        <Link href="/privacy">{copy.editorial.privacy}</Link>
+        <Link href="/cookies">{copy.editorial.cookies}</Link>
+        <Link href="/terms">{copy.editorial.terms}</Link>
       </footer>
     </div>
   );

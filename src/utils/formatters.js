@@ -1,10 +1,16 @@
 const currencyFormatters = new Map();
+let activeLocale = "hu-HU";
+
+export function setFormatterLocale(locale) {
+  activeLocale = locale || "hu-HU";
+}
 
 function currencyFormatter(maximumFractionDigits) {
-  if (!currencyFormatters.has(maximumFractionDigits)) {
+  const key = `${activeLocale}:${maximumFractionDigits}`;
+  if (!currencyFormatters.has(key)) {
     currencyFormatters.set(
-      maximumFractionDigits,
-      new Intl.NumberFormat("hu-HU", {
+      key,
+      new Intl.NumberFormat(activeLocale, {
         style: "currency",
         currency: "USD",
         minimumFractionDigits: 0,
@@ -12,7 +18,7 @@ function currencyFormatter(maximumFractionDigits) {
       })
     );
   }
-  return currencyFormatters.get(maximumFractionDigits);
+  return currencyFormatters.get(key);
 }
 
 export function formatPrice(value) {
@@ -27,7 +33,7 @@ export function formatCompactCurrency(value) {
   if (value == null || value === "") return "-";
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
-  return new Intl.NumberFormat("hu-HU", {
+  return new Intl.NumberFormat(activeLocale, {
     style: "currency",
     currency: "USD",
     notation: "compact",
@@ -40,12 +46,15 @@ export function formatPercent(value, withSign = false) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
   const sign = withSign && number > 0 ? "+" : "";
-  return `${sign}${number.toFixed(2).replace(".", ",")}%`;
+  return `${sign}${new Intl.NumberFormat(activeLocale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number)}%`;
 }
 
 export function formatUpdatedAt(value) {
   if (!value) return "-";
-  return new Intl.DateTimeFormat("hu-HU", {
+  return new Intl.DateTimeFormat(activeLocale, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
@@ -54,7 +63,7 @@ export function formatUpdatedAt(value) {
 
 export function formatNewsTime(value) {
   if (!value) return "";
-  return new Intl.DateTimeFormat("hu-HU", {
+  return new Intl.DateTimeFormat(activeLocale, {
     month: "short",
     day: "numeric",
     hour: "2-digit",

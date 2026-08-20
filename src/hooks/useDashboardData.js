@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchDashboard } from "../services/api";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export function useDashboardData(coin, horizon) {
+  const { copy } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -23,13 +25,12 @@ export function useDashboardData(coin, horizon) {
     }
     setError("");
 
-    fetchDashboard({ coin, horizon, signal: controller.signal })
+    fetchDashboard({ coin, horizon, signal: controller.signal, errorMessages: copy.states })
       .then((payload) => setData(payload))
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
           setError(
-            requestError.message ||
-              "Nem sikerült betölteni a piaci adatokat. Próbáld újra rövidesen."
+            requestError.message || copy.states.marketLoadError
           );
         }
       })

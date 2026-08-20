@@ -9,12 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function ModelsPage() {
-  return (
-    <DashboardClient
-      view="models"
-      pageEyebrow="Modellmonitor"
-      pageTitle="Előrejelző modellek teljesítménye"
-      pageDescription="Visszamérési metrikák, kalibráció, modellnapló és tanítási készültség egy auditálható nézetben."
-    />
-  );
+  return <DashboardClient view="models" />;
 }
