@@ -1,14 +1,17 @@
 import React from "react";
 import { FiActivity, FiCheckCircle, FiCpu, FiPauseCircle, FiShield, FiTarget } from "react-icons/fi";
 import { formatPercent, formatPrice } from "../../utils/formatters";
+import { useLanguage } from "../../i18n/LanguageContext";
+import { translateApiText, translateFeatureLabel } from "../../i18n/apiText";
 
-function profileLabel(risk) {
-  if (risk <= 3) return "Óvatos profil";
-  if (risk <= 7) return "Kiegyensúlyozott profil";
-  return "Magas kockázattűrés";
+function profileLabel(risk, copy) {
+  if (risk <= 3) return copy.risk.cautious;
+  if (risk <= 7) return copy.risk.balanced;
+  return copy.risk.high;
 }
 
 function RiskSignals({ forecast, risk }) {
+  const { copy, language } = useLanguage();
   const indicators = forecast.indicators || {};
   const specialist = forecast.specialist;
   const specialistFeatures = specialist?.top_features || [];
@@ -16,55 +19,50 @@ function RiskSignals({ forecast, risk }) {
   const probability = forecast.probability_forecast;
   const probabilityFeatures = probability?.top_features || [];
   const distributionShift = probability?.distribution_shift;
-  const shiftLabels = {
-    stable: "Stabil",
-    watch: "Figyelendő",
-    elevated: "Emelkedett",
-    insufficient: "Nincs elég adat",
-  };
+  const shiftLabels = copy.risk.shifts;
 
   return (
     <section className="surface risk-panel" id="risk" aria-labelledby="risk-title">
       <header className="panel-heading">
         <div>
-          <span>Kockázati kép</span>
-          <h2 id="risk-title">Szintek és jelzések</h2>
+          <span>{copy.risk.eyebrow}</span>
+          <h2 id="risk-title">{copy.risk.title}</h2>
         </div>
         <FiShield aria-hidden="true" />
       </header>
 
       <div className="risk-profile">
-        <small>Saját beállítás</small>
-        <strong>{profileLabel(risk)}</strong>
+        <small>{copy.risk.custom}</small>
+        <strong>{profileLabel(risk, copy)}</strong>
       </div>
 
       <dl className="risk-levels">
         <div>
-          <dt>Támasz</dt>
+          <dt>{copy.risk.support}</dt>
           <dd>{formatPrice(forecast.support)}</dd>
         </div>
         <div>
-          <dt>Ellenállás</dt>
+          <dt>{copy.risk.resistance}</dt>
           <dd>{formatPrice(forecast.resistance)}</dd>
         </div>
         <div>
-          <dt>Volatilitás</dt>
-          <dd>{forecast.volatility_label} · {formatPercent(forecast.volatility)}</dd>
+          <dt>{copy.risk.volatility}</dt>
+          <dd>{translateApiText(forecast.volatility_label, language)} · {formatPercent(forecast.volatility)}</dd>
         </div>
         <div>
           <dt>RSI (14)</dt>
           <dd>{indicators.rsi ?? "-"}</dd>
         </div>
         <div>
-          <dt>Piaci rezsim</dt>
-          <dd>{forecast.regime?.label || "-"}</dd>
+          <dt>{copy.risk.regime}</dt>
+          <dd>{translateApiText(forecast.regime?.label, language) || "-"}</dd>
         </div>
         <div>
-          <dt>Technikai holdout</dt>
+          <dt>{copy.risk.technicalHoldout}</dt>
           <dd>
             {forecast.ensemble?.validation_skill_pct > 0
               ? formatPercent(forecast.ensemble.validation_skill_pct, true)
-              : "Nincs igazolt előny"}
+              : copy.risk.noVerifiedEdge}
           </dd>
         </div>
       </dl>
@@ -74,14 +72,14 @@ function RiskSignals({ forecast, risk }) {
           <div className="specialist-heading">
             <span>
               <FiTarget aria-hidden="true" />
-              {probability.active ? "Aktív valószínűségi modell" : "Valószínűségi védelmi kapu"}
+              {probability.active ? copy.risk.activeProbability : copy.risk.probabilityGate}
             </span>
-            <strong>{probability.model.family}</strong>
+            <strong>{translateApiText(probability.model.family, language)}</strong>
           </div>
-          <p>{probability.reason}</p>
+          <p>{translateApiText(probability.reason, language)}</p>
           <dl className="specialist-metrics">
             <div>
-              <dt>Brier-előny</dt>
+              <dt>{copy.risk.brierEdge}</dt>
               <dd>{formatPercent(probability.calibration.holdout_brier_skill_pct, true)}</dd>
             </div>
             <div>
@@ -89,7 +87,7 @@ function RiskSignals({ forecast, risk }) {
               <dd>{probability.calibration.roc_auc?.toFixed(3) || "-"}</dd>
             </div>
             <div>
-              <dt>{probability.stability.historical_total_checks ? "Korábbi kapuk" : "Stabil blokkok"}</dt>
+              <dt>{probability.stability.historical_total_checks ? copy.risk.previousGates : copy.risk.stableBlocks}</dt>
               <dd>
                 {probability.stability.historical_total_checks
                   ? `${probability.stability.historical_positive_checks}/${probability.stability.historical_total_checks}`
@@ -97,7 +95,7 @@ function RiskSignals({ forecast, risk }) {
               </dd>
             </div>
             <div>
-              <dt>Adateloszlás</dt>
+              <dt>{copy.risk.distribution}</dt>
               <dd>
                 {shiftLabels[distributionShift?.status] || "-"}
                 {distributionShift?.score != null ? ` · ${distributionShift.score.toFixed(2)}` : ""}
@@ -106,11 +104,11 @@ function RiskSignals({ forecast, risk }) {
           </dl>
           {probabilityFeatures.length > 0 && (
             <div className="specialist-features">
-              <small>Legfontosabb valószínűségi jellemzők</small>
+              <small>{copy.risk.topProbabilityFeatures}</small>
               <ul>
                 {probabilityFeatures.slice(0, 3).map((feature) => (
                   <li key={feature.key}>
-                    <span>{feature.label}</span>
+                    <span>{translateFeatureLabel(feature, language)}</span>
                     <strong>{formatPercent(feature.importance_pct)}</strong>
                   </li>
                 ))}
@@ -125,14 +123,14 @@ function RiskSignals({ forecast, risk }) {
           <div className="specialist-heading">
             <span>
               <SpecialistIcon aria-hidden="true" />
-              {specialist.active ? "Aktív specialista" : "Védelmi kapu aktív"}
+              {specialist.active ? copy.risk.activeSpecialist : copy.risk.guardActive}
             </span>
-            <strong>{specialist.family}</strong>
+            <strong>{translateApiText(specialist.family, language)}</strong>
           </div>
-          <p>{specialist.reason}</p>
+          <p>{translateApiText(specialist.reason, language)}</p>
           <dl className="specialist-metrics">
             <div>
-              <dt>Tanítóminta</dt>
+              <dt>{copy.risk.trainingSamples}</dt>
               <dd>{specialist.training_samples}</dd>
             </div>
             <div>
@@ -140,17 +138,17 @@ function RiskSignals({ forecast, risk }) {
               <dd>{specialist.holdout_samples || "-"}</dd>
             </div>
             <div>
-              <dt>Mért előny</dt>
+              <dt>{copy.risk.measuredEdge}</dt>
               <dd>{formatPercent(specialist.validation_skill_pct, true)}</dd>
             </div>
           </dl>
           {specialistFeatures.length > 0 && (
             <div className="specialist-features">
-              <small>Legnagyobb súlyú jellemzők</small>
+              <small>{copy.risk.topFeatures}</small>
               <ul>
                 {specialistFeatures.slice(0, 3).map((feature) => (
                   <li key={feature.key}>
-                    <span>{feature.label}</span>
+                    <span>{translateFeatureLabel(feature, language)}</span>
                     <strong>{formatPercent(feature.importance_pct)}</strong>
                   </li>
                 ))}
@@ -163,13 +161,13 @@ function RiskSignals({ forecast, risk }) {
       <div className="signal-list" id="signals">
         <div className="signal-list-title">
           <FiActivity aria-hidden="true" />
-          <strong>Modelljelzések</strong>
+          <strong>{copy.risk.modelSignals}</strong>
         </div>
         <ul>
           {forecast.signals.map((signal) => (
             <li key={signal}>
               <FiCheckCircle aria-hidden="true" />
-              <span>{signal}</span>
+              <span>{translateApiText(signal, language)}</span>
             </li>
           ))}
         </ul>

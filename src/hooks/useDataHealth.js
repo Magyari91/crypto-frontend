@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchDataHealth } from "../services/api";
+import { useLanguage } from "../i18n/LanguageContext";
 
 
 export function useDataHealth(enabled = true) {
+  const { copy } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,11 +26,11 @@ export function useDataHealth(enabled = true) {
     }
     setError("");
 
-    fetchDataHealth({ signal: controller.signal })
+    fetchDataHealth({ signal: controller.signal, errorMessages: copy.states })
       .then((payload) => setData(payload))
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
-          setError(requestError.message || "Az adatgyűjtés állapota most nem tölthető be.");
+          setError(requestError.message || copy.states.dataHealthError);
         }
       })
       .finally(() => {

@@ -1,6 +1,7 @@
 import React from "react";
 import { FiArrowDown, FiArrowUp } from "react-icons/fi";
 import { formatPercent, formatPrice } from "../../utils/formatters";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 function directionClass(value) {
   if (value == null || !Number.isFinite(Number(value))) return "";
@@ -41,17 +42,18 @@ function MoverList({ title, rows, type }) {
 }
 
 function MoversPanel({ movers }) {
+  const { copy } = useLanguage();
   return (
     <section className="surface movers-panel" aria-labelledby="movers-title">
       <header className="panel-heading">
         <div>
-          <span>24 órás mozgás</span>
-          <h2 id="movers-title">Piaci szélsőértékek</h2>
+          <span>{copy.movers.eyebrow}</span>
+          <h2 id="movers-title">{copy.movers.title}</h2>
         </div>
       </header>
       <div className="movers-grid">
-        <MoverList title="Legjobbak" rows={movers.gainers} type="gainers" />
-        <MoverList title="Leggyengébbek" rows={movers.losers} type="losers" />
+        <MoverList title={copy.movers.gainers} rows={movers.gainers} type="gainers" />
+        <MoverList title={copy.movers.losers} rows={movers.losers} type="losers" />
       </div>
     </section>
   );

@@ -14,38 +14,34 @@ import {
   FiXCircle,
 } from "react-icons/fi";
 import { formatPercent, formatPrice } from "../../utils/formatters";
+import { useLanguage } from "../../i18n/LanguageContext";
+import { translateApiText } from "../../i18n/apiText";
 import ModelLab from "./ModelLab";
-
-const directions = {
-  bullish: { label: "Emelkedő", icon: FiArrowUpRight },
-  bearish: { label: "Csökkenő", icon: FiArrowDownRight },
-  neutral: { label: "Semleges", icon: FiMinus },
-};
 
 const readinessStates = {
   storage_required: {
-    label: "Tartós tárhely szükséges",
+    labelKey: "storageRequired",
     icon: FiAlertTriangle,
     tone: "warning",
   },
-  collecting: { label: "Mintagyűjtés", icon: FiActivity, tone: "pending" },
-  maturing: { label: "Címkék érlelődnek", icon: FiClock, tone: "pending" },
+  collecting: { labelKey: "collecting", icon: FiActivity, tone: "pending" },
+  maturing: { labelKey: "maturing", icon: FiClock, tone: "pending" },
   labeling_delayed: {
-    label: "Címkézésre vár",
+    labelKey: "labelingDelayed",
     icon: FiAlertTriangle,
     tone: "warning",
   },
   collecting_labels: {
-    label: "Tanítóminta épül",
+    labelKey: "collectingLabels",
     icon: FiActivity,
     tone: "pending",
   },
-  ready: { label: "Tanítható adatkészlet", icon: FiCheckCircle, tone: "ready" },
+  ready: { labelKey: "ready", icon: FiCheckCircle, tone: "ready" },
 };
 
-function formatDate(value, includeTime = false) {
+function formatDate(value, locale, includeTime = false) {
   if (!value) return "-";
-  return new Intl.DateTimeFormat("hu-HU", {
+  return new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -53,13 +49,22 @@ function formatDate(value, includeTime = false) {
   }).format(new Date(value));
 }
 
-function formatScore(value, digits = 4) {
+function formatScore(value, locale, digits = 4) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
-  return number.toFixed(digits).replace(".", ",");
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(number);
 }
 
 function Direction({ value }) {
+  const { copy } = useLanguage();
+  const directions = {
+    bullish: { label: copy.analytics.bullish, icon: FiArrowUpRight },
+    bearish: { label: copy.analytics.bearish, icon: FiArrowDownRight },
+    neutral: { label: copy.analytics.neutral, icon: FiMinus },
+  };
   const direction = directions[value] || directions.neutral;
   const Icon = direction.icon;
   return (
@@ -91,6 +96,7 @@ function ReadinessMetric({ label, value, detail }) {
 }
 
 function TrainingReadiness({ readiness }) {
+  const { copy, locale, language } = useLanguage();
   if (!readiness) return null;
 
   const state = readinessStates[readiness.status] || readinessStates.collecting;
@@ -99,10 +105,10 @@ function TrainingReadiness({ readiness }) {
   const remaining = Number(readiness.remaining_independent_labels) || 0;
   const overdue = Number(readiness.overdue_sample_count) || 0;
   const labelDetail = overdue
-    ? `${overdue} lejárt minta vár címkére`
+    ? copy.analytics.overdueSamples(overdue)
     : readiness.next_due_at
-      ? `következő lejárat: ${formatDate(readiness.next_due_at, true)}`
-      : "nincs esedékes címke";
+      ? copy.analytics.nextDue(formatDate(readiness.next_due_at, locale, true))
+      : copy.analytics.noDue;
 
   return (
     <section
@@ -111,62 +117,63 @@ function TrainingReadiness({ readiness }) {
     >
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">Pont-időben gyűjtött adatok</span>
-          <h2 id="training-readiness-title">Tanítási készültség</h2>
+          <span className="eyebrow">{copy.analytics.readinessEyebrow}</span>
+          <h2 id="training-readiness-title">{copy.analytics.readinessTitle}</h2>
         </div>
         <span className={`readiness-state ${state.tone}`}>
           <StateIcon aria-hidden="true" />
-          {state.label}
+          {copy.analytics[state.labelKey]}
         </span>
       </div>
 
       <div className="readiness-metrics">
         <ReadinessMetric
-          label="Tárolás"
-          value={persistent ? "PostgreSQL" : "Ideiglenes SQLite"}
-          detail={persistent ? "újraindításálló" : "újraindításkor törlődhet"}
+          label={copy.analytics.storage}
+          value={persistent ? "PostgreSQL" : copy.analytics.temporarySqlite}
+          detail={persistent ? copy.analytics.persistent : copy.analytics.temporary}
         />
         <ReadinessMetric
-          label="Összes snapshot"
+          label={copy.analytics.totalSnapshots}
           value={readiness.sample_count}
-          detail="pont-időbeli feature minta"
+          detail={copy.analytics.pointInTimeSample}
         />
         <ReadinessMetric
-          label="Lezárt kimenet"
+          label={copy.analytics.closedOutcome}
           value={readiness.labeled_sample_count}
-          detail={`${formatPercent(readiness.label_coverage_pct)} lefedettség · ${labelDetail}`}
+          detail={`${formatPercent(readiness.label_coverage_pct)} ${copy.analytics.coverage} · ${labelDetail}`}
         />
         <ReadinessMetric
-          label="Független lezárt nap"
+          label={copy.analytics.independentDays}
           value={`${readiness.independent_labeled_days}/${readiness.minimum_independent_labels}`}
-          detail={remaining ? `${remaining} hiányzik a tanítási kapuhoz` : "a minimum teljesült"}
+          detail={remaining ? copy.analytics.missingForGate(remaining) : copy.analytics.minimumMet}
         />
       </div>
 
       <div className="readiness-progress">
         <div>
-          <span>Adatkészlet előrehaladása</span>
+          <span>{copy.analytics.datasetProgress}</span>
           <strong>{formatPercent(readiness.progress_pct)}</strong>
         </div>
         <div className="readiness-track" aria-hidden="true">
           <span style={{ width: `${Math.min(100, readiness.progress_pct || 0)}%` }} />
         </div>
-        <p>{readiness.reason}</p>
+        <p>{translateApiText(readiness.reason, language)}</p>
       </div>
     </section>
   );
 }
 
 function LivePerformance({ performance }) {
+  const { copy, language } = useLanguage();
   if (!performance) return null;
 
   const allTime = performance.all_time || {};
   const rows = [
     ...(performance.windows || []).map((window) => ({
       ...window,
-      label: `${window.days} nap`,
+      label: copy.analytics.days(window.days),
     })),
-    { ...allTime, label: "Teljes időszak" },
+    { ...allTime, label: copy.analytics.allTime },
   ];
 
   return (
@@ -176,29 +183,28 @@ function LivePerformance({ performance }) {
     >
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">Éles, lejárt előrejelzések</span>
-          <h2 id="live-performance-title">Valós teljesítmény</h2>
+          <span className="eyebrow">{copy.analytics.liveEyebrow}</span>
+          <h2 id="live-performance-title">{copy.analytics.liveTitle}</h2>
         </div>
         <FiTrendingUp aria-hidden="true" />
       </div>
 
       {!allTime.samples ? (
         <p className="empty-copy live-performance-empty">
-          Az első lejárt v5.1 előrejelzések után itt jelenik meg a 7, 30 és 90 napos
-          eredmény.
+          {copy.analytics.liveEmpty}
         </p>
       ) : (
         <div className="live-performance-scroll">
           <table className="live-performance-table">
             <thead>
               <tr>
-                <th>Időablak</th>
-                <th>Minta</th>
+                <th>{copy.analytics.timeWindow}</th>
+                <th>{copy.analytics.samples}</th>
                 <th>MAE</th>
-                <th>Alap MAE</th>
-                <th>Előny</th>
-                <th>Aktív találat</th>
-                <th>80%-os sáv</th>
+                <th>{copy.analytics.baselineMae}</th>
+                <th>{copy.analytics.skill}</th>
+                <th>{copy.analytics.activeHit}</th>
+                <th>{copy.analytics.interval80}</th>
               </tr>
             </thead>
             <tbody>
@@ -228,34 +234,37 @@ function LivePerformance({ performance }) {
         </div>
       )}
 
-      <p className="methodology-note">{performance.methodology}</p>
+      <p className="methodology-note">{translateApiText(performance.methodology, language)}</p>
     </section>
   );
 }
 
 function LoadingAnalytics() {
+  const { copy } = useLanguage();
   return (
     <div className="analytics-loading" role="status">
       <FiRefreshCw className="spin" aria-hidden="true" />
-      <span>A lezárt előrejelzések kiértékelése...</span>
+      <span>{copy.analytics.evaluating}</span>
     </div>
   );
 }
 
 function AnalyticsError({ message, onRetry }) {
+  const { copy } = useLanguage();
   return (
     <div className="analytics-error" role="alert">
       <FiXCircle aria-hidden="true" />
       <span>{message}</span>
       <button type="button" onClick={onRetry}>
         <FiRefreshCw aria-hidden="true" />
-        Újrapróbálás
+        {copy.states.retry}
       </button>
     </div>
   );
 }
 
 function BacktestContent({ backtest }) {
+  const { copy, locale, language } = useLanguage();
   const { summary, recent_results: recentResults, agreement_bands: agreementBands } = backtest;
   const probability = summary.probability;
   const probabilityAudit = probability?.challenger || probability;
@@ -270,10 +279,10 @@ function BacktestContent({ backtest }) {
         : "";
   const skillDetail =
     technicalSkill > 0.25
-      ? "Jobb a korábbi modellnél"
+      ? copy.analytics.better
       : technicalSkill < -0.25
-        ? "Fejlesztést igényel"
-        : "A korábbi modell szintje";
+        ? copy.analytics.needsImprovement
+        : copy.analytics.sameLevel;
   const activeAccuracy = summary.active_directional_accuracy;
   const probabilitySkill = probabilityAudit?.brier_skill_pct;
   const probabilityTone =
@@ -283,34 +292,34 @@ function BacktestContent({ backtest }) {
     <>
       <div className="audit-metrics">
         <Metric
-          label={probability ? probability.challenger ? "Challenger Brier score" : "Brier score" : "Aktív jel találati aránya"}
-          value={probability ? formatScore(probabilityAudit.brier_score) : activeAccuracy == null ? "Nincs aktív jel" : formatPercent(activeAccuracy)}
+          label={probability ? probability.challenger ? "Challenger Brier score" : "Brier score" : copy.analytics.activeAccuracy}
+          value={probability ? formatScore(probabilityAudit.brier_score, locale) : activeAccuracy == null ? copy.analytics.noActiveSignal : formatPercent(activeAccuracy)}
           detail={probability
-            ? `alapesély: ${formatScore(probabilityAudit.baseline_brier_score)}`
-            : `${formatPercent(summary.signal_coverage_pct)} lefedettség · ${formatPercent(summary.specialist_usage_pct || 0)} specialista`}
+            ? `${copy.analytics.baseline}: ${formatScore(probabilityAudit.baseline_brier_score, locale)}`
+            : `${formatPercent(summary.signal_coverage_pct)} ${copy.analytics.coverage} · ${formatPercent(summary.specialist_usage_pct || 0)} ${copy.analytics.specialist}`}
         />
         <Metric
-          label={probability ? probability.challenger ? "Challenger Brier-előny" : "Brier-előny" : "Átlagos modellhiba"}
+          label={probability ? probability.challenger ? copy.analytics.challengerBrierSkill : copy.analytics.brierSkill : copy.analytics.averageError}
           value={probability ? formatPercent(probabilityAudit.brier_skill_pct, true) : formatPercent(summary.mae_pct)}
-          detail={probability ? `${probabilityAudit.samples || summary.samples} walk-forward minta` : "MAE, százalékpont"}
+          detail={probability ? copy.analytics.walkForwardSamples(probabilityAudit.samples || summary.samples) : copy.analytics.maePoints}
           tone={probability ? probabilityTone : ""}
         />
         <Metric
-          label={probability ? "ROC AUC" : "Korábbi modell hibája"}
-          value={probability ? formatScore(probabilityAudit.roc_auc, 3) : formatPercent(technicalMae)}
+          label={probability ? "ROC AUC" : copy.analytics.previousModelError}
+          value={probability ? formatScore(probabilityAudit.roc_auc, locale, 3) : formatPercent(technicalMae)}
           detail={probability
-            ? `${formatPercent(probabilityAudit.calibration_error_pct)} kalibrációs hiba`
-            : `v2 technikai modell · ${summary.samples} minta`}
+            ? `${formatPercent(probabilityAudit.calibration_error_pct)} ${copy.analytics.calibrationError}`
+            : copy.analytics.technicalModelSamples(summary.samples)}
         />
         <Metric
-          label={probability ? "BUY-jelölt pontosság" : "Előny a v2-höz képest"}
+          label={probability ? copy.analytics.buyPrecision : copy.analytics.edgeVsV2}
           value={probability
             ? probability.buy_precision_pct == null
-              ? "Nincs aktív jel"
+              ? copy.analytics.noActiveSignal
               : formatPercent(probability.buy_precision_pct)
             : formatPercent(technicalSkill, true)}
           detail={probability
-            ? `${formatPercent(probability.buy_signal_coverage_pct)} lefedettség · ${formatPercent(probability.active_model_usage_pct)} aktív modell`
+            ? `${formatPercent(probability.buy_signal_coverage_pct)} ${copy.analytics.coverage} · ${formatPercent(probability.active_model_usage_pct)} ${copy.analytics.activeModel}`
             : skillDetail}
           tone={probability ? "" : skillTone}
         />
@@ -319,24 +328,24 @@ function BacktestContent({ backtest }) {
       <div className="audit-detail-grid">
         <div className="audit-results">
           <div className="subsection-heading">
-            <h3>Legutóbbi teszteredmények</h3>
-            <span>{formatDate(backtest.period.from)} - {formatDate(backtest.period.to)}</span>
+            <h3>{copy.analytics.latestResults}</h3>
+            <span>{formatDate(backtest.period.from, locale)} - {formatDate(backtest.period.to, locale)}</span>
           </div>
           <div className="audit-table-scroll">
             <table className="audit-table">
               <thead>
                 <tr>
-                  <th>Dátum</th>
-                  <th>Jelzés</th>
-                  <th>Becslés</th>
-                  <th>Tény</th>
-                  <th>Eredmény</th>
+                  <th>{copy.analytics.date}</th>
+                  <th>{copy.analytics.signal}</th>
+                  <th>{copy.analytics.estimate}</th>
+                  <th>{copy.analytics.actual}</th>
+                  <th>{copy.analytics.result}</th>
                 </tr>
               </thead>
               <tbody>
                 {recentResults.map((result) => (
                   <tr key={result.forecast_at}>
-                    <td>{formatDate(result.forecast_at)}</td>
+                    <td>{formatDate(result.forecast_at, locale)}</td>
                     <td><Direction value={result.predicted_direction} /></td>
                     <td>{formatPercent(result.predicted_change_pct, true)}</td>
                     <td className={result.actual_change_pct >= 0 ? "positive" : "negative"}>
@@ -360,10 +369,10 @@ function BacktestContent({ backtest }) {
                           <FiXCircle aria-hidden="true" />
                         )}
                         {result.predicted_direction === "neutral"
-                          ? "Tartózkodott"
+                          ? copy.analytics.abstained
                           : result.hit
-                            ? "Talált"
-                            : "Eltért"}
+                            ? copy.analytics.hit
+                            : copy.analytics.missed}
                       </span>
                     </td>
                   </tr>
@@ -375,16 +384,16 @@ function BacktestContent({ backtest }) {
 
         <div className="agreement-breakdown">
           <div className="subsection-heading">
-            <h3>{calibrationBins.length ? "Kalibrációs sávok" : "Aktív jelek minőség szerint"}</h3>
+            <h3>{calibrationBins.length ? copy.analytics.calibrationBands : copy.analytics.activeSignalQuality}</h3>
           </div>
           <ul>
             {(calibrationBins.length ? calibrationBins : agreementBands).map((band) => (
               <li key={band.label || `${band.from_pct}-${band.to_pct}`}>
                 <div>
-                  <span>{band.label || `${band.from_pct}-${band.to_pct}% becslés`}</span>
+                  <span>{band.label || copy.analytics.estimateBand(band.from_pct, band.to_pct)}</span>
                   <strong>
                     {(band.observed_frequency_pct ?? band.directional_accuracy) == null
-                      ? "Nincs minta"
+                      ? copy.analytics.noSample
                       : formatPercent(band.observed_frequency_pct ?? band.directional_accuracy)}
                   </strong>
                 </div>
@@ -393,8 +402,8 @@ function BacktestContent({ backtest }) {
                 </div>
                 <small>
                   {calibrationBins.length
-                    ? `átlagos becslés: ${formatPercent(band.mean_probability_pct)} · ${band.samples} minta`
-                    : `${band.samples} aktív jel · ${band.total_samples} minta`}
+                    ? copy.analytics.meanEstimate(formatPercent(band.mean_probability_pct), band.samples)
+                    : copy.analytics.activeSignals(band.samples, band.total_samples)}
                 </small>
               </li>
             ))}
@@ -402,14 +411,15 @@ function BacktestContent({ backtest }) {
         </div>
       </div>
 
-      <p className="methodology-note">{backtest.methodology}</p>
+      <p className="methodology-note">{translateApiText(backtest.methodology, language)}</p>
     </>
   );
 }
 
 function ForecastHistory({ history }) {
+  const { copy, locale } = useLanguage();
   if (!history.length) {
-    return <p className="empty-copy">Az első élő előrejelzés naplózása folyamatban van.</p>;
+    return <p className="empty-copy">{copy.analytics.historyEmpty}</p>;
   }
 
   return (
@@ -417,21 +427,21 @@ function ForecastHistory({ history }) {
       {history.slice(0, 8).map((record) => (
         <li key={record.id}>
           <div className="history-main">
-            <span>{formatDate(record.generated_at, true)} · v{record.model_version}</span>
+            <span>{formatDate(record.generated_at, locale, true)} · v{record.model_version}</span>
             <Direction value={record.direction_key} />
           </div>
           <div className={`history-values ${record.event_probability_pct != null ? "with-probability" : ""}`}>
             <span>
-              <small>Kiinduló ár</small>
+              <small>{copy.analytics.basePrice}</small>
               <strong>{formatPrice(record.base_price)}</strong>
             </span>
             <span>
-              <small>Modell cél</small>
+              <small>{copy.analytics.modelTarget}</small>
               <strong>{formatPrice(record.target_price)}</strong>
             </span>
             {record.event_probability_pct != null && (
               <span>
-                <small>Esemény esélye</small>
+                <small>{copy.analytics.eventChance}</small>
                 <strong>{formatPercent(record.event_probability_pct)}</strong>
               </span>
             )}
@@ -444,8 +454,8 @@ function ForecastHistory({ history }) {
             )}
             <span>
               {record.status === "evaluated"
-                ? `Tény: ${formatPercent(record.actual_change_pct, true)}`
-                : `Kiértékelés: ${formatDate(record.due_at)}`}
+                ? `${copy.analytics.actualPrefix}: ${formatPercent(record.actual_change_pct, true)}`
+                : `${copy.analytics.evaluation}: ${formatDate(record.due_at, locale)}`}
             </span>
           </div>
         </li>
@@ -455,13 +465,14 @@ function ForecastHistory({ history }) {
 }
 
 function ForecastAnalytics({ data, loading, error, onRetry }) {
+  const { copy } = useLanguage();
   return (
     <div className="forecast-audit-grid" id="performance">
       <section className="surface backtest-panel" aria-labelledby="backtest-title">
         <div className="panel-heading">
           <div>
-            <span className="eyebrow">Walk-forward visszamérés</span>
-            <h2 id="backtest-title">Modell teljesítménye</h2>
+            <span className="eyebrow">{copy.analytics.backtestEyebrow}</span>
+            <h2 id="backtest-title">{copy.analytics.backtestTitle}</h2>
           </div>
           <FiBarChart2 aria-hidden="true" />
         </div>
@@ -473,8 +484,8 @@ function ForecastAnalytics({ data, loading, error, onRetry }) {
       <section className="surface journal-panel" aria-labelledby="journal-title">
         <div className="panel-heading">
           <div>
-            <span className="eyebrow">Élő napló</span>
-            <h2 id="journal-title">Előrejelzési előzmények</h2>
+            <span className="eyebrow">{copy.analytics.journalEyebrow}</span>
+            <h2 id="journal-title">{copy.analytics.journalTitle}</h2>
           </div>
           <FiDatabase aria-hidden="true" />
         </div>

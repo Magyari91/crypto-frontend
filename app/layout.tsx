@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import ConsentManager from "../src/components/ConsentManager";
 import { SITE_NAME, SITE_URL } from "../src/config/site";
+import { LanguageProvider } from "../src/i18n/LanguageContext";
 import "../src/index.css";
 
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
@@ -49,7 +50,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="hu" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
-        <ConsentManager>{children}</ConsentManager>
+        <LanguageProvider>
+          <ConsentManager>{children}</ConsentManager>
+        </LanguageProvider>
       </body>
     </html>
   );

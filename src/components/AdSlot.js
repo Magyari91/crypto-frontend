@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useConsent } from "./ConsentManager";
+import { useLanguage } from "../i18n/LanguageContext";
 
 const slots = {
   dashboard: process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD,
@@ -19,6 +20,7 @@ function requestAd() {
 
 export default function AdSlot({ placement }) {
   const consent = useConsent();
+  const { copy } = useLanguage();
   const client = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
   const certifiedCmpReady = process.env.NEXT_PUBLIC_ADSENSE_CMP_READY === "true";
   const slot = slots[placement];
@@ -48,8 +50,8 @@ export default function AdSlot({ placement }) {
   if (!enabled) return null;
 
   return (
-    <aside className="ad-slot" aria-label="Hirdetés">
-      <span>Hirdetés</span>
+    <aside className="ad-slot" aria-label={copy.ads.label}>
+      <span>{copy.ads.label}</span>
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}

@@ -7,6 +7,7 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import { formatCompactCurrency, formatPercent, formatPrice } from "../../utils/formatters";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 const PAGE_SIZE = 25;
 
@@ -15,7 +16,7 @@ function directionClass(value) {
   return Number(value) >= 0 ? "positive" : "negative";
 }
 
-function sortRows(rows, sort) {
+function sortRows(rows, sort, locale) {
   const sorted = [...rows];
   if (sort === "gainers") {
     return sorted.sort((a, b) => Number(b.change_24h ?? -Infinity) - Number(a.change_24h ?? -Infinity));
@@ -24,7 +25,7 @@ function sortRows(rows, sort) {
     return sorted.sort((a, b) => Number(a.change_24h ?? Infinity) - Number(b.change_24h ?? Infinity));
   }
   if (sort === "name") {
-    return sorted.sort((a, b) => String(a.name).localeCompare(String(b.name), "hu"));
+    return sorted.sort((a, b) => String(a.name).localeCompare(String(b.name), locale));
   }
   return sorted.sort(
     (a, b) => Number(a.market_cap_rank ?? Infinity) - Number(b.market_cap_rank ?? Infinity)
@@ -41,23 +42,24 @@ function MarketTable({
   onRetry,
   onAnalyze,
 }) {
+  const { copy, locale } = useLanguage();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(1);
 
   const rows = catalog?.items?.length ? catalog.items : fallbackRows;
-  const normalizedQuery = query.trim().toLocaleLowerCase("hu");
+  const normalizedQuery = query.trim().toLocaleLowerCase(locale);
   const filteredRows = useMemo(() => {
     const matching = rows.filter((row) => {
       if (filter === "analysis" && !row.analysis_available) return false;
       if (!normalizedQuery) return true;
       return `${row.name || ""} ${row.symbol || ""}`
-        .toLocaleLowerCase("hu")
+        .toLocaleLowerCase(locale)
         .includes(normalizedQuery);
     });
-    return sortRows(matching, sort);
-  }, [filter, normalizedQuery, rows, sort]);
+    return sortRows(matching, sort, locale);
+  }, [filter, locale, normalizedQuery, rows, sort]);
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -75,34 +77,34 @@ function MarketTable({
     <section className="surface market-panel" id="market" aria-labelledby="market-title">
       <header className="panel-heading market-heading">
         <div>
-          <span>Piaclista</span>
-          <h2 id="market-title">Kriptovaluta árfolyamok</h2>
+          <span>{copy.marketTable.eyebrow}</span>
+          <h2 id="market-title">{copy.marketTable.title}</h2>
         </div>
         <small>
-          {catalog?.count || rows.length} eszköz · {analysisLimit} elemezhető
+          {copy.marketTable.assetCount(catalog?.count || rows.length, analysisLimit)}
         </small>
       </header>
 
-      <div className="market-toolbar" aria-label="Piaclista vezérlők">
+      <div className="market-toolbar" aria-label={copy.marketTable.controls}>
         <label className="market-search">
           <FiSearch aria-hidden="true" />
           <input
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Név vagy ticker"
-            aria-label="Piaclista keresése"
+            placeholder={copy.marketTable.searchPlaceholder}
+            aria-label={copy.marketTable.search}
           />
         </label>
 
-        <div className="market-filter" aria-label="Piaclista szűrése">
+        <div className="market-filter" aria-label={copy.marketTable.filter}>
           <button
             type="button"
             className={filter === "all" ? "active" : ""}
             aria-pressed={filter === "all"}
             onClick={() => setFilter("all")}
           >
-            Összes
+            {copy.marketTable.all}
           </button>
           <button
             type="button"
@@ -110,17 +112,17 @@ function MarketTable({
             aria-pressed={filter === "analysis"}
             onClick={() => setFilter("analysis")}
           >
-            Elemezhető
+            {copy.marketTable.analyzable}
           </button>
         </div>
 
         <label className="market-sort">
-          <span>Rendezés</span>
+          <span>{copy.marketTable.sort}</span>
           <select value={sort} onChange={(event) => setSort(event.target.value)}>
-            <option value="rank">Piaci érték</option>
-            <option value="gainers">24h emelkedők</option>
-            <option value="losers">24h csökkenők</option>
-            <option value="name">Név</option>
+            <option value="rank">{copy.marketTable.marketCap}</option>
+            <option value="gainers">{copy.marketTable.gainers}</option>
+            <option value="losers">{copy.marketTable.losers}</option>
+            <option value="name">{copy.marketTable.name}</option>
           </select>
         </label>
 
@@ -128,20 +130,20 @@ function MarketTable({
           {(loading || refreshing) && <FiRefreshCw className="spin" aria-hidden="true" />}
           <span>
             {loading
-              ? "200 eszköz betöltése"
+              ? copy.marketTable.loading
               : catalog?.partial
-                ? "Részleges Binance-adatok"
-                : `${source} rangsor`}
+                ? copy.marketTable.partial
+                : copy.marketTable.ranking(source)}
           </span>
         </div>
       </div>
 
       {error && (
         <div className="market-catalog-warning" role="status">
-          <span>{error} Az elérhető rövid lista látható.</span>
+          <span>{error} {copy.marketTable.fallback}</span>
           <button type="button" onClick={onRetry}>
             <FiRefreshCw aria-hidden="true" />
-            Újrapróbálás
+            {copy.states.retry}
           </button>
         </div>
       )}
@@ -151,12 +153,12 @@ function MarketTable({
           <thead>
             <tr>
               <th>#</th>
-              <th>Eszköz</th>
-              <th>Ár</th>
-              <th>24 óra</th>
-              <th>7 nap</th>
-              <th>Piaci érték</th>
-              <th>Modell</th>
+              <th>{copy.marketTable.asset}</th>
+              <th>{copy.marketTable.price}</th>
+              <th>{copy.marketTable.hours24}</th>
+              <th>{copy.marketTable.days7}</th>
+              <th>{copy.marketTable.marketCap}</th>
+              <th>{copy.marketTable.model}</th>
             </tr>
           </thead>
           <tbody>
@@ -192,13 +194,13 @@ function MarketTable({
                       type="button"
                       className={`market-analysis-button ${row.id === selectedCoin ? "active" : ""}`}
                       onClick={() => onAnalyze(row.id)}
-                      aria-label={`${row.name} elemzésének megnyitása`}
+                      aria-label={copy.marketTable.openAnalysis(row.name)}
                     >
                       <FiActivity aria-hidden="true" />
-                      {row.id === selectedCoin ? "Megnyitva" : "Elemzés"}
+                      {row.id === selectedCoin ? copy.marketTable.opened : copy.marketTable.analysis}
                     </button>
                   ) : (
-                    <span className="price-only">Csak ár</span>
+                    <span className="price-only">{copy.marketTable.priceOnly}</span>
                   )}
                 </td>
               </tr>
@@ -206,7 +208,7 @@ function MarketTable({
             {visibleRows.length === 0 && (
               <tr>
                 <td className="market-empty" colSpan="7">
-                  Nincs a keresésnek megfelelő eszköz.
+                  {copy.marketTable.empty}
                 </td>
               </tr>
             )}
@@ -216,14 +218,14 @@ function MarketTable({
 
       <footer className="market-pagination">
         <span>{firstVisible}–{lastVisible} / {filteredRows.length}</span>
-        <strong>{safePage} / {pageCount} oldal</strong>
+        <strong>{safePage} / {pageCount} {copy.marketTable.page}</strong>
         <div>
           <button
             type="button"
             onClick={() => setPage((current) => Math.max(1, current - 1))}
             disabled={safePage === 1}
-            aria-label="Előző oldal"
-            title="Előző oldal"
+            aria-label={copy.marketTable.previous}
+            title={copy.marketTable.previous}
           >
             <FiChevronLeft aria-hidden="true" />
           </button>
@@ -231,8 +233,8 @@ function MarketTable({
             type="button"
             onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
             disabled={safePage === pageCount}
-            aria-label="Következő oldal"
-            title="Következő oldal"
+            aria-label={copy.marketTable.next}
+            title={copy.marketTable.next}
           >
             <FiChevronRight aria-hidden="true" />
           </button>

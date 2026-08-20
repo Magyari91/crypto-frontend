@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchMarketCatalog } from "../services/api";
+import { useLanguage } from "../i18n/LanguageContext";
 
 
 export function useMarketCatalog(enabled = true) {
+  const { copy } = useLanguage();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,13 +26,12 @@ export function useMarketCatalog(enabled = true) {
     }
     setError("");
 
-    fetchMarketCatalog({ limit: 200, signal: controller.signal })
+    fetchMarketCatalog({ limit: 200, signal: controller.signal, errorMessages: copy.states })
       .then((payload) => setData(payload))
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
           setError(
-            requestError.message ||
-              "A teljes piaclista most nem tölthető be."
+            requestError.message || copy.states.marketCatalogError
           );
         }
       })

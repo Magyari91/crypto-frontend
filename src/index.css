@@ -53,6 +53,18 @@
   letter-spacing: 0;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html {
   min-width: 320px;
   scroll-behavior: smooth;
@@ -274,6 +286,57 @@ a {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.language-switcher {
+  display: inline-flex;
+  width: 78px;
+  height: 40px;
+  flex: 0 0 78px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-soft);
+  background: var(--surface);
+}
+
+.language-switcher:focus-within,
+.language-switcher:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.language-switcher svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.language-switcher select {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  cursor: pointer;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.language-switcher option {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.language-switcher.compact {
+  width: 72px;
+  height: 34px;
+  flex-basis: 72px;
 }
 
 .live-status {
@@ -2838,6 +2901,13 @@ tbody tr:hover,
   font-size: 1.08rem;
 }
 
+.consent-copy-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .consent-copy p {
   margin: 0;
   color: var(--text-soft);
@@ -2950,6 +3020,12 @@ tbody tr:hover,
 .editorial-footer {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.editorial-header-actions {
+  display: flex;
   align-items: center;
   gap: 18px;
 }
@@ -3219,6 +3295,11 @@ tbody tr:hover,
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 4px;
+  }
+
+  .editorial-header-actions {
+    width: 100%;
+    align-items: center;
   }
 }
 

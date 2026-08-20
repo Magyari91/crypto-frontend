@@ -8,14 +8,17 @@ import {
 } from "react-icons/fi";
 import { fetchModelLab } from "../../services/api";
 import { formatPercent } from "../../utils/formatters";
+import { useLanguage } from "../../i18n/LanguageContext";
+import { translateApiText } from "../../i18n/apiText";
 
 
 function CandidateStatus({ active }) {
+  const { copy } = useLanguage();
   const Icon = active ? FiCheckCircle : FiPauseCircle;
   return (
     <span className={`lab-status ${active ? "active" : "standby"}`}>
       <Icon aria-hidden="true" />
-      {active ? "Bekapcsolható jelölt" : "Tartalékban marad"}
+      {active ? copy.modelLab.enabledCandidate : copy.modelLab.standby}
     </span>
   );
 }
@@ -30,58 +33,61 @@ function Metric({ label, value }) {
 }
 
 function DirectionCandidate({ candidate }) {
+  const { copy, language } = useLanguage();
   return (
     <article className="lab-candidate">
       <header>
         <div>
-          <small>Irányjelölt</small>
-          <h3>{candidate.family}</h3>
+          <small>{copy.modelLab.directionCandidate}</small>
+          <h3>{translateApiText(candidate.family, language)}</h3>
         </div>
         <CandidateStatus active={candidate.active} />
       </header>
       <dl className="lab-metrics">
-        <Metric label="Holdout-előny" value={formatPercent(candidate.validation_skill_pct, true)} />
+        <Metric label={copy.modelLab.holdoutSkill} value={formatPercent(candidate.validation_skill_pct, true)} />
         <Metric
-          label="Aktív találati arány"
+          label={copy.modelLab.activeAccuracy}
           value={
             candidate.holdout_directional_accuracy == null
-              ? "Nincs aktív jel"
+              ? copy.modelLab.noActiveSignal
               : formatPercent(candidate.holdout_directional_accuracy)
           }
         />
-        <Metric label="Jellefedettség" value={formatPercent(candidate.holdout_signal_coverage_pct)} />
-        <Metric label="Tanítóminta" value={candidate.training_samples} />
+        <Metric label={copy.modelLab.signalCoverage} value={formatPercent(candidate.holdout_signal_coverage_pct)} />
+        <Metric label={copy.modelLab.trainingSamples} value={candidate.training_samples} />
       </dl>
-      <p>{candidate.reason}</p>
+      <p>{translateApiText(candidate.reason, language)}</p>
     </article>
   );
 }
 
 function RiskCandidate({ candidate }) {
+  const { copy, language } = useLanguage();
   return (
     <article className="lab-candidate">
       <header>
         <div>
-          <small>Mozgási sáv</small>
-          <h3>{candidate.family}</h3>
+          <small>{copy.modelLab.movementRange}</small>
+          <h3>{translateApiText(candidate.family, language)}</h3>
         </div>
         <CandidateStatus active={candidate.active} />
       </header>
       <dl className="lab-metrics">
-        <Metric label="80%-os sáv" value={`±${formatPercent(candidate.range_pct)}`} />
-        <Metric label="Holdout-előny" value={formatPercent(candidate.pinball_skill_pct, true)} />
-        <Metric label="Tényleges lefedettség" value={formatPercent(candidate.holdout_coverage_pct)} />
+        <Metric label={copy.modelLab.interval80} value={`±${formatPercent(candidate.range_pct)}`} />
+        <Metric label={copy.modelLab.holdoutSkill} value={formatPercent(candidate.pinball_skill_pct, true)} />
+        <Metric label={copy.modelLab.actualCoverage} value={formatPercent(candidate.holdout_coverage_pct)} />
         <Metric
-          label="Stabil blokkok"
+          label={copy.modelLab.stableBlocks}
           value={`${candidate.positive_stability_folds}/${candidate.stability_folds}`}
         />
       </dl>
-      <p>{candidate.reason}</p>
+      <p>{translateApiText(candidate.reason, language)}</p>
     </article>
   );
 }
 
 function ModelLab({ coin, horizon }) {
+  const { copy, language } = useLanguage();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -112,6 +118,7 @@ function ModelLab({ coin, horizon }) {
         coin,
         horizon,
         signal: controller.signal,
+        errorMessages: copy.states,
       });
       setData(payload);
     } catch (requestError) {
@@ -129,8 +136,8 @@ function ModelLab({ coin, horizon }) {
     <section className="surface model-lab-panel" aria-labelledby="model-lab-title">
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">Kísérleti órás modellek</span>
-          <h2 id="model-lab-title">Modelllabor</h2>
+          <span className="eyebrow">{copy.modelLab.eyebrow}</span>
+          <h2 id="model-lab-title">{copy.modelLab.title}</h2>
         </div>
         <button
           type="button"
@@ -139,20 +146,20 @@ function ModelLab({ coin, horizon }) {
           disabled={loading}
         >
           {loading ? <FiRefreshCw className="spin" aria-hidden="true" /> : <FiCpu aria-hidden="true" />}
-          {loading ? "Ellenőrzés folyamatban" : data ? "Újraellenőrzés" : "Órás ellenőrzés"}
+          {loading ? copy.modelLab.checking : data ? copy.modelLab.recheck : copy.modelLab.run}
         </button>
       </div>
 
       {!data && !loading && !error && (
         <div className="lab-idle">
           <FiCpu aria-hidden="true" />
-          <span>Nincs friss órás modellmérés</span>
+          <span>{copy.modelLab.idle}</span>
         </div>
       )}
       {loading && (
         <div className="analytics-loading" role="status">
           <FiRefreshCw className="spin" aria-hidden="true" />
-          <span>Az órás jelöltek időrendi ellenőrzése...</span>
+          <span>{copy.modelLab.loading}</span>
         </div>
       )}
       {error && (
@@ -165,13 +172,13 @@ function ModelLab({ coin, horizon }) {
         <>
           <div className="lab-meta">
             <span>{data.source}</span>
-            <strong>{data.history_hours} órás gyertya</strong>
+            <strong>{copy.modelLab.candles(data.history_hours)}</strong>
           </div>
           <div className="lab-candidate-grid">
             <DirectionCandidate candidate={data.direction_candidate} />
             <RiskCandidate candidate={data.risk_candidate} />
           </div>
-          <p className="methodology-note">{data.methodology}</p>
+          <p className="methodology-note">{translateApiText(data.methodology, language)}</p>
         </>
       )}
     </section>

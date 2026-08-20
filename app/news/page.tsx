@@ -9,12 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function NewsPage() {
-  return (
-    <DashboardClient
-      view="news"
-      pageEyebrow="Hírfolyam és sentiment"
-      pageTitle="Kriptohírek piaci kontextusban"
-      pageDescription="A legfrissebb hírek hangulata, forrásai és modellben alkalmazott súlya eszközönként."
-    />
-  );
+  return <DashboardClient view="news" />;
 }
