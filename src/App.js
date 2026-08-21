@@ -164,6 +164,23 @@ function App({
     setPendingAnalysisCoin(null);
   }, [matchingData, pendingAnalysisCoin]);
 
+  useEffect(() => {
+    if (!matchingData) return undefined;
+
+    const scrollToHash = () => {
+      const targetId = window.location.hash.slice(1);
+      if (!["forecast", "performance", "signals", "risk"].includes(targetId)) return;
+
+      window.requestAnimationFrame(() => {
+        document.getElementById(targetId)?.scrollIntoView({ block: "start" });
+      });
+    };
+
+    scrollToHash();
+    window.addEventListener("hashchange", scrollToHash);
+    return () => window.removeEventListener("hashchange", scrollToHash);
+  }, [matchingData]);
+
   const openAnalysis = (coinId) => {
     if (onOpenAnalysis) {
       onOpenAnalysis(coinId);

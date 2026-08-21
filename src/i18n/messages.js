@@ -266,6 +266,11 @@ export const messages = {
       trainingSamples: "Tanítóminta",
       measuredEdge: "Mért előny",
       topFeatures: "Legnagyobb súlyú jellemzők",
+      currentForecast: "Aktuális modelljelzés",
+      horizonForecast: (days, direction) => `${days} napos előrejelzés · ${direction}`,
+      targetPrice: "Célár",
+      expectedMove: "Várt elmozdulás",
+      eventProbability: "Esemény valószínűsége",
       modelSignals: "Modelljelzések",
       shifts: {
         stable: "Stabil",
@@ -693,6 +698,11 @@ export const messages = {
       trainingSamples: "Training samples",
       measuredEdge: "Measured edge",
       topFeatures: "Highest-weight features",
+      currentForecast: "Current model signal",
+      horizonForecast: (days, direction) => `${days}-day forecast · ${direction}`,
+      targetPrice: "Target price",
+      expectedMove: "Expected move",
+      eventProbability: "Event probability",
       modelSignals: "Model signals",
       shifts: {
         stable: "Stable",
