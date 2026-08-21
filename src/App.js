@@ -50,7 +50,11 @@ function DashboardContent({
       <MarketMetrics market={data.market} />
       {view === "dashboard" && <AdSlot placement="dashboard" />}
       {showForecast && (
-        <ForecastSummary selected={data.selected} generatedAt={data.generated_at} />
+        <ForecastSummary
+          selected={data.selected}
+          generatedAt={data.generated_at}
+          publication={data.forecast_publication}
+        />
       )}
       {showForecastContext && <DerivativesMetrics data={data.derivatives} />}
 

@@ -6,6 +6,11 @@ test("renders the calibrated target and prediction interval", () => {
   const { container } = render(
     <ForecastSummary
       generatedAt="2026-07-11T08:00:00+00:00"
+      publication={{
+        horizon_days: 7,
+        cadence: "weekly",
+        next_publication_at: "2026-07-13T00:12:00+00:00",
+      }}
       selected={{
         symbol: "BTC",
         name: "Bitcoin",
@@ -42,6 +47,7 @@ test("renders the calibrated target and prediction interval", () => {
   expect(screen.getByText("P(7 napos hozam >= +1%)")).toBeInTheDocument();
   expect(screen.getByText("47,00%")).toBeInTheDocument();
   expect(screen.getByText(/jelölt: 58,30%/)).toBeInTheDocument();
+  expect(screen.getByText(/Következő automatikus kiadás:/)).toBeInTheDocument();
   expect(screen.getByRole("progressbar", { name: "Emelkedési esemény valószínűsége" })).toBeInTheDocument();
   expect(container.querySelector(".asset-symbol-avatar")).toHaveTextContent("B");
 });
