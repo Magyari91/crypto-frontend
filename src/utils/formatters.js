@@ -61,6 +61,17 @@ export function formatUpdatedAt(value) {
   }).format(new Date(value));
 }
 
+export function formatPublicationTime(value) {
+  if (!value) return "-";
+  return new Intl.DateTimeFormat(activeLocale, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(value));
+}
+
 export function formatNewsTime(value) {
   if (!value) return "";
   return new Intl.DateTimeFormat(activeLocale, {

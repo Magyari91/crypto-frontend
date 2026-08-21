@@ -1,10 +1,21 @@
 import React from "react";
-import { FiArrowDownRight, FiArrowUpRight, FiMinus, FiTarget } from "react-icons/fi";
-import { formatPercent, formatPrice, formatUpdatedAt } from "../../utils/formatters";
+import {
+  FiArrowDownRight,
+  FiArrowUpRight,
+  FiClock,
+  FiMinus,
+  FiTarget,
+} from "react-icons/fi";
+import {
+  formatPercent,
+  formatPrice,
+  formatPublicationTime,
+  formatUpdatedAt,
+} from "../../utils/formatters";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { translateApiText } from "../../i18n/apiText";
 
-function ForecastSummary({ selected, generatedAt }) {
+function ForecastSummary({ selected, generatedAt, publication }) {
   const { copy, language } = useLanguage();
   const directions = {
     bullish: { label: copy.forecast.bullish, icon: FiArrowUpRight },
@@ -73,6 +84,14 @@ function ForecastSummary({ selected, generatedAt }) {
             forecast.specialist?.active ? copy.forecast.hybrid : copy.forecast.guarded
           )}
         </small>
+        {publication?.next_publication_at && (
+          <span className="forecast-publication">
+            <FiClock aria-hidden="true" />
+            <span>
+              {copy.forecast.nextPublication}: {formatPublicationTime(publication.next_publication_at)}
+            </span>
+          </span>
+        )}
       </div>
 
       <div className="forecast-target">

@@ -787,6 +787,28 @@ a {
   font-size: 1.55rem;
 }
 
+.forecast-publication {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 8px;
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.forecast-publication > svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  margin-top: 1px;
+}
+
+.forecast-publication span {
+  overflow-wrap: anywhere;
+}
+
 .forecast-target {
   flex-direction: row;
   align-items: center;
