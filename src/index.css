@@ -70,6 +70,13 @@ html {
   scroll-behavior: smooth;
 }
 
+#forecast,
+#performance,
+#signals,
+#risk {
+  scroll-margin-top: 112px;
+}
+
 body {
   min-width: 320px;
   min-height: 100vh;
@@ -1090,6 +1097,109 @@ a {
   margin: 0 18px 18px;
   padding-top: 14px;
   border-top: 1px solid var(--border);
+}
+
+.signal-forecast {
+  display: grid;
+  gap: 13px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--warning);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.signal-forecast.buy_candidate,
+.signal-forecast.bullish {
+  border-left-color: var(--positive);
+}
+
+.signal-forecast.risk_off,
+.signal-forecast.bearish {
+  border-left-color: var(--negative);
+}
+
+.signal-forecast-heading {
+  display: grid;
+  gap: 5px;
+}
+
+.signal-forecast-heading > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--warning);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.signal-forecast.buy_candidate .signal-forecast-heading > span,
+.signal-forecast.bullish .signal-forecast-heading > span {
+  color: var(--positive);
+}
+
+.signal-forecast.risk_off .signal-forecast-heading > span,
+.signal-forecast.bearish .signal-forecast-heading > span {
+  color: var(--negative);
+}
+
+.signal-forecast-heading > span svg {
+  width: 15px;
+  height: 15px;
+}
+
+.signal-forecast-heading h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+}
+
+.signal-forecast-heading small {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.signal-forecast-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.signal-forecast-metrics > div {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+}
+
+.signal-forecast-metrics .signal-probability {
+  grid-column: 1 / -1;
+}
+
+.signal-forecast-metrics dt {
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  font-size: 0.61rem;
+  line-height: 1.35;
+}
+
+.signal-forecast-metrics dd {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.signal-forecast-metrics dd.positive {
+  color: var(--positive);
+}
+
+.signal-forecast-metrics dd.negative {
+  color: var(--negative);
 }
 
 .signal-list-title {
@@ -3239,6 +3349,13 @@ tbody tr:hover,
 }
 
 @media (max-width: 820px) {
+  #forecast,
+  #performance,
+  #signals,
+  #risk {
+    scroll-margin-top: 20px;
+  }
+
   .application-shell {
     display: block;
   }
@@ -3620,8 +3737,13 @@ tbody tr:hover,
   .data-health-metrics,
   .readiness-metrics,
   .risk-levels,
+  .signal-forecast-metrics,
   .movers-grid {
     grid-template-columns: 1fr;
+  }
+
+  .signal-forecast-metrics .signal-probability {
+    grid-column: 1;
   }
 
   .metric-item,

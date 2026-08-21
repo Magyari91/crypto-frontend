@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FiActivity,
   FiBarChart2,
@@ -26,8 +26,22 @@ function createNavigation(coin, copy) {
 
 function Sidebar({ online, loading, activeView = "dashboard", coin = "bitcoin" }) {
   const { copy } = useLanguage();
+  const [activeSection, setActiveSection] = useState("");
   const statusLabel = loading ? copy.nav.connecting : online ? copy.nav.apiOnline : copy.nav.apiOffline;
   const navigation = createNavigation(coin, copy);
+
+  useEffect(() => {
+    const syncActiveSection = () => {
+      const hash = window.location.hash.slice(1);
+      setActiveSection(["signals", "risk"].includes(hash) ? hash : "");
+    };
+
+    syncActiveSection();
+    window.addEventListener("hashchange", syncActiveSection);
+    return () => window.removeEventListener("hashchange", syncActiveSection);
+  }, []);
+
+  const selectedView = activeSection || activeView;
 
   return (
     <aside className="sidebar" aria-label={copy.nav.main}>
@@ -42,9 +56,10 @@ function Sidebar({ online, loading, activeView = "dashboard", coin = "bitcoin" }
       <nav className="sidebar-nav">
         {navigation.map(({ href, label, icon: Icon, view }) => (
           <a
-            className={activeView === view ? "active" : ""}
+            className={selectedView === view ? "active" : ""}
             href={href}
             key={href}
+            aria-current={selectedView === view ? "page" : undefined}
             aria-label={label}
             title={label}
           >

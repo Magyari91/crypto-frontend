@@ -20,6 +20,19 @@ function RiskSignals({ forecast, risk }) {
   const probabilityFeatures = probability?.top_features || [];
   const distributionShift = probability?.distribution_shift;
   const shiftLabels = copy.risk.shifts;
+  const directionLabel = copy.forecast[forecast.direction_key] || copy.forecast.neutral;
+  const decisionKey = probability?.decision?.key || forecast.direction_key || "neutral";
+  const decisionLabel = probability?.decision?.label
+    ? translateApiText(probability.decision.label, language)
+    : directionLabel;
+  const expectedMove = Number(forecast.expected_change_pct);
+  const expectedMoveTone = Number.isFinite(expectedMove)
+    ? expectedMove > 0
+      ? "positive"
+      : expectedMove < 0
+        ? "negative"
+        : "neutral"
+    : "neutral";
 
   return (
     <section className="surface risk-panel" id="risk" aria-labelledby="risk-title">
@@ -159,12 +172,44 @@ function RiskSignals({ forecast, risk }) {
       )}
 
       <div className="signal-list" id="signals">
-        <div className="signal-list-title">
+        <div className={`signal-forecast ${decisionKey}`} aria-labelledby="current-signal-title">
+          <div className="signal-forecast-heading">
+            <span>
+              <FiActivity aria-hidden="true" />
+              {copy.risk.currentForecast}
+            </span>
+            <h3 id="current-signal-title">{decisionLabel}</h3>
+            <small>{copy.risk.horizonForecast(forecast.horizon_days, directionLabel)}</small>
+          </div>
+          <dl className="signal-forecast-metrics">
+            <div>
+              <dt>{copy.risk.targetPrice}</dt>
+              <dd>{formatPrice(forecast.target_price)}</dd>
+            </div>
+            <div>
+              <dt>{copy.risk.expectedMove}</dt>
+              <dd className={expectedMoveTone}>
+                {formatPercent(forecast.expected_change_pct, true)}
+              </dd>
+            </div>
+            <div className="signal-probability">
+              <dt>
+                {translateApiText(
+                  probability?.event?.formula || copy.risk.eventProbability,
+                  language
+                )}
+              </dt>
+              <dd>{formatPercent(probability?.probability_pct ?? forecast.confidence)}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="signal-list-title" id="model-signals-title">
           <FiActivity aria-hidden="true" />
           <strong>{copy.risk.modelSignals}</strong>
         </div>
-        <ul>
-          {forecast.signals.map((signal) => (
+        <ul aria-labelledby="model-signals-title">
+          {(forecast.signals || []).map((signal) => (
             <li key={signal}>
               <FiCheckCircle aria-hidden="true" />
               <span>{translateApiText(signal, language)}</span>
