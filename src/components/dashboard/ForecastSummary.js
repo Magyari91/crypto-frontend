@@ -97,7 +97,7 @@ function ForecastSummary({ selected, generatedAt, publication }) {
       <div className="forecast-target">
         <FiTarget aria-hidden="true" />
         <span>
-          <small>{copy.forecast.calibratedTarget}</small>
+          <small>{copy.forecast.predictedPrice(forecast.horizon_days)}</small>
           <strong>{formatPrice(forecast.target_price)}</strong>
           {interval && (
             <em>

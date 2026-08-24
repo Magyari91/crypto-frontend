@@ -951,9 +951,60 @@ a {
   background: var(--accent);
 }
 
-.chart-legend .target-line {
+.chart-legend .prediction-line {
   border-top: 2px dashed var(--warning);
   background: transparent;
+}
+
+.chart-legend .prediction-range {
+  height: 8px;
+  border: 1px solid var(--warning);
+  background: var(--warning-soft);
+}
+
+.chart-price-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+  min-height: 78px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.chart-price-comparison > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.chart-price-comparison > div:last-child {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.chart-price-comparison span {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.chart-price-comparison strong {
+  overflow-wrap: anywhere;
+  font-size: 1.12rem;
+}
+
+.chart-price-comparison small {
+  align-self: end;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.chart-price-comparison > svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
 }
 
 .chart-area {
@@ -976,6 +1027,19 @@ a {
 
 .chart-tooltip span {
   color: var(--text-muted);
+}
+
+.chart-tooltip small,
+.chart-tooltip em {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-style: normal;
+}
+
+.prediction-point text {
+  fill: var(--text);
+  font-size: 0.68rem;
+  font-weight: 800;
 }
 
 .risk-profile {
@@ -3753,6 +3817,25 @@ tbody tr:hover,
 }
 
 @media (max-width: 430px) {
+  .chart-price-comparison {
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .chart-price-comparison > div:last-child {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-price-comparison small {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .chart-price-comparison strong {
+    font-size: 0.94rem;
+  }
+
   .metric-strip,
   .forecast-summary,
   .audit-metrics,
