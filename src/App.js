@@ -60,7 +60,7 @@ function DashboardContent({
 
       {showForecastContext && (
         <div className="analysis-grid">
-          <PriceChart selected={data.selected} />
+          <PriceChart selected={data.selected} generatedAt={data.generated_at} />
           <RiskSignals forecast={data.selected.forecast} risk={risk} />
         </div>
       )}

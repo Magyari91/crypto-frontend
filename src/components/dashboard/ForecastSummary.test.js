@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import ForecastSummary from "./ForecastSummary";
 
 
-test("renders the calibrated target and prediction interval", () => {
+test("renders the dated predicted price and prediction interval", () => {
   const { container } = render(
     <ForecastSummary
       generatedAt="2026-07-11T08:00:00+00:00"
@@ -42,7 +42,7 @@ test("renders the calibrated target and prediction interval", () => {
     />
   );
 
-  expect(screen.getByText("Kalibrált célérték")).toBeInTheDocument();
+  expect(screen.getByText("7 nap múlva becsült ár")).toBeInTheDocument();
   expect(screen.getByText(/80% sáv:/)).toHaveTextContent("60 000 USD - 68 000 USD");
   expect(screen.getByText("P(7 napos hozam >= +1%)")).toBeInTheDocument();
   expect(screen.getByText("47,00%")).toBeInTheDocument();
