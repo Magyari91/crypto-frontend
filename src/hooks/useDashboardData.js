@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchDashboard } from "../services/api";
 import { useLanguage } from "../i18n/LanguageContext";
+import { readDashboardCache, writeDashboardCache } from "../utils/dashboardCache";
+
+const MAX_REFRESH_POLLS = 8;
+
+function refreshDelay(payload) {
+  const seconds = Number(payload?.delivery?.retry_after_seconds) || 3;
+  return Math.min(5, Math.max(2, seconds)) * 1000;
+}
 
 export function useDashboardData(coin, horizon) {
   const { copy } = useLanguage();
@@ -16,17 +24,46 @@ export function useDashboardData(coin, horizon) {
 
   useEffect(() => {
     const controller = new AbortController();
-    const isInitialLoad = data === null;
+    const cached = readDashboardCache(coin, horizon);
+    const isInitialLoad = data === null && cached === null;
 
-    if (isInitialLoad) {
+    if (cached) {
+      setData(cached);
+      setLoading(false);
+      setRefreshing(true);
+    } else if (isInitialLoad) {
       setLoading(true);
     } else {
       setRefreshing(true);
     }
     setError("");
 
-    fetchDashboard({ coin, horizon, signal: controller.signal, errorMessages: copy.states })
-      .then((payload) => setData(payload))
+    async function load() {
+      let payload = await fetchDashboard({
+        coin,
+        horizon,
+        signal: controller.signal,
+        errorMessages: copy.states,
+      });
+
+      for (let attempt = 0; ; attempt += 1) {
+        if (controller.signal.aborted) return;
+        setData(payload);
+        writeDashboardCache(payload);
+
+        if (!payload?.delivery?.refreshing || attempt >= MAX_REFRESH_POLLS) return;
+        await new Promise((resolve) => setTimeout(resolve, refreshDelay(payload)));
+        if (controller.signal.aborted) return;
+        payload = await fetchDashboard({
+          coin,
+          horizon,
+          signal: controller.signal,
+          errorMessages: copy.states,
+        });
+      }
+    }
+
+    load()
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
           setError(
