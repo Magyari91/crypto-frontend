@@ -8,6 +8,7 @@ kriptovalutához készít részletes, visszamért előrejelzést.
 
 - Next.js App Router, React 19 és fokozatos TypeScript-migráció
 - statikus export a Render Static Site számára
+- az utolsó sikeres coin/időtáv dashboard helyi visszaállítása, háttérfrissítéssel
 - külön FastAPI backend a piaci és modelladatokhoz
 - valódi, indexelhető útvonalak és érménként generált metaadatok
 - hozzájárulás után aktiválható analitika- és hirdetési réteg

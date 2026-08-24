@@ -23,6 +23,7 @@ export async function fetchDashboard({ coin, horizon, signal, errorMessages }) {
   });
   const response = await fetch(`${API_BASE_URL}/api/v1/dashboard?${query}`, {
     signal,
+    cache: "no-store",
     headers: { Accept: "application/json" },
   });
 
